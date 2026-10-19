@@ -7,6 +7,7 @@ import { Movie } from "@/types/movie";
 import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
 import { GENRE_MAP } from "@/lib/tmdb";
 import { RiFireFill, RiInformationLine, RiPlayFill, RiStarFill } from "@remixicon/react";
+import { FaStar } from "react-icons/fa";
 
 type HeroSpotlightProps = {
     movies: Movie[];
@@ -149,8 +150,9 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                                         <p className="max-w-[100px] truncate text-xs font-semibold text-foreground">
                                             {movie.title}
                                         </p>
-                                        <p className="text-[10px] text-muted-foreground font-medium">
-                                            ★ {movie.vote_average.toFixed(1)}
+                                        <p className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
+                                            <FaStar className="size-2.5 text-amber-500 fill-amber-500 shrink-0" />
+                                            <span>{movie.vote_average.toFixed(1)}</span>
                                         </p>
                                     </div>
                                 </button>

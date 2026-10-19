@@ -3,6 +3,7 @@
 import { getPosterUrl } from "@/lib/tmdb-images";
 import type { Movie } from "@/types/movie";
 import { RiPlayFill, RiStarFill } from "@remixicon/react";
+import { FaArrowRight } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -60,9 +61,10 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
 
                     <Link
                         href={`/movie/${movie.id}`}
-                        className="mt-3 text-[11px] font-medium text-zinc-200 underline-offset-4 transition hover:text-white hover:underline"
+                        className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-200 underline-offset-4 transition hover:text-white hover:underline"
                     >
-                        Lihat Detail &rarr;
+                        <span>Lihat Detail</span>
+                        <FaArrowRight className="size-2.5 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                 </div>
             </div>

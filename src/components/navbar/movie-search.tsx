@@ -18,6 +18,8 @@ import {
     RiTvLine,
     RiUserStarLine,
 } from "@remixicon/react";
+import { FaArrowDown, FaArrowUp } from "react-icons/fa";
+import { BsArrowReturnLeft } from "react-icons/bs";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -850,7 +852,14 @@ export function MovieSearchDesktop() {
 
                         {/* Footer Tips */}
                         <div className="flex items-center justify-between border-t border-border/50 bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground">
-                            <span>Tekan ↑ ↓ untuk memilih, ↵ untuk membuka</span>
+                            <span className="inline-flex items-center gap-1">
+                                <span>Tekan</span>
+                                <kbd className="inline-flex items-center rounded border border-border/70 bg-background p-0.5"><FaArrowUp className="size-2 text-foreground" /></kbd>
+                                <kbd className="inline-flex items-center rounded border border-border/70 bg-background p-0.5"><FaArrowDown className="size-2 text-foreground" /></kbd>
+                                <span>untuk memilih,</span>
+                                <kbd className="inline-flex items-center rounded border border-border/70 bg-background p-0.5"><BsArrowReturnLeft className="size-2 text-foreground" /></kbd>
+                                <span>untuk membuka</span>
+                            </span>
                             <kbd className="rounded border border-border/70 bg-background px-1.5 py-0.5 font-mono text-[10px]">
                                 ESC
                             </kbd>

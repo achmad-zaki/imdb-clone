@@ -24,6 +24,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { getPersonUrl } from "@/lib/slug";
 import { createPortal } from "react-dom";
 import {
     useCallback,
@@ -390,13 +391,17 @@ export function MovieSearchDesktop() {
                 router.push(`/movie/${item.id}`);
                 handleClose();
                 inputRef.current?.blur();
+            } else if (item.type === "person") {
+                router.push(getPersonUrl(item.id, item.title));
+                handleClose();
+                inputRef.current?.blur();
             } else if (item.type === "keyword") {
                 // If user clicks a keyword, search for it under titles or all
                 setCategory("titles");
                 handleQueryChange(item.title);
                 inputRef.current?.focus();
-            } else if (item.type === "person" || item.type === "company") {
-                // Search for that person's or company's works
+            } else if (item.type === "company") {
+                // Search for that company's works
                 handleQueryChange(item.title);
                 inputRef.current?.focus();
             }
@@ -724,7 +729,13 @@ export function MovieSearchDesktop() {
                                                 selectedIndex === index;
 
                                             const isLinkable =
-                                                item.type === "movie" || item.type === "tv";
+                                                item.type === "movie" ||
+                                                item.type === "tv" ||
+                                                item.type === "person";
+                                            const targetHref =
+                                                item.type === "person"
+                                                    ? getPersonUrl(item.id, item.title)
+                                                    : `/movie/${item.id}`;
 
                                             const content = (
                                                 <div
@@ -805,7 +816,7 @@ export function MovieSearchDesktop() {
                                                 return (
                                                     <Link
                                                         key={`${item.type}-${item.id}`}
-                                                        href={`/movie/${item.id}`}
+                                                        href={targetHref}
                                                         onClick={handleClose}
                                                     >
                                                         {content}
@@ -931,10 +942,13 @@ export function MovieSearchMobile() {
         if (item.type === "movie" || item.type === "tv") {
             router.push(`/movie/${item.id}`);
             handleClose();
+        } else if (item.type === "person") {
+            router.push(getPersonUrl(item.id, item.title));
+            handleClose();
         } else if (item.type === "keyword") {
             setCategory("titles");
             handleQueryChange(item.title);
-        } else if (item.type === "person" || item.type === "company") {
+        } else if (item.type === "company") {
             handleQueryChange(item.title);
         }
     };
@@ -1111,7 +1125,12 @@ export function MovieSearchMobile() {
                                                     );
                                                     const isLinkable =
                                                         item.type === "movie" ||
-                                                        item.type === "tv";
+                                                        item.type === "tv" ||
+                                                        item.type === "person";
+                                                    const targetHref =
+                                                        item.type === "person"
+                                                            ? getPersonUrl(item.id, item.title)
+                                                            : `/movie/${item.id}`;
 
                                                     const card = (
                                                         <div
@@ -1196,7 +1215,7 @@ export function MovieSearchMobile() {
                                                         return (
                                                             <Link
                                                                 key={`${item.type}-${item.id}`}
-                                                                href={`/movie/${item.id}`}
+                                                                href={targetHref}
                                                                 onClick={handleClose}
                                                             >
                                                                 {card}

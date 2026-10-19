@@ -1,5 +1,5 @@
 import { Movie, MovieDetail, MovieResponse, Video, VideoResponse } from "@/types/movie";
-import { PersonResponse } from "@/types/person";
+import { PersonDetail, PersonResponse } from "@/types/person";
 
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -224,3 +224,22 @@ export async function getTrendingPeople(timeWindow: "day" | "week" = "week"): Pr
         language: "en-US",
     });
 }
+
+export async function getPopularPeople(page = 1, language = "en-US"): Promise<PersonResponse> {
+    return tmdbFetch<PersonResponse>("/person/popular", {
+        language,
+        page: page.toString(),
+    });
+}
+
+export async function getPersonDetails(personId: number | string): Promise<PersonDetail | null> {
+    try {
+        return await tmdbFetch<PersonDetail>(`/person/${personId}`, {
+            append_to_response: "movie_credits",
+            language: "en-US",
+        });
+    } catch {
+        return null;
+    }
+}
+

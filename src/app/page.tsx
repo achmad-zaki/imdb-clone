@@ -1,8 +1,8 @@
-import { getPopularMovies, getTrendingMovies } from "@/lib/tmdb";
+import { getPopularMovies, getTrendingMovies, getTrendingPeople } from "@/lib/tmdb";
 import HomeClient from "@/components/movie/home-client";
 
 export default async function Home() {
-    const [trendingData, popularData] = await Promise.all([
+    const [trendingData, popularData, peopleData] = await Promise.all([
         getTrendingMovies("week").catch(() => ({
             results: [],
             page: 1,
@@ -15,12 +15,19 @@ export default async function Home() {
             total_pages: 1,
             total_results: 0,
         })),
+        getTrendingPeople("week").catch(() => ({
+            results: [],
+            page: 1,
+            total_pages: 1,
+            total_results: 0,
+        })),
     ]);
 
     return (
         <HomeClient
             trendingMovies={trendingData.results || []}
             popularMovies={popularData.results || []}
+            trendingPeople={peopleData.results || []}
         />
     );
 }

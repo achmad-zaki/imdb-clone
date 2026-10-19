@@ -19,7 +19,7 @@ export default function Footer() {
                 </div>
 
                 <p className="text-xs text-muted-foreground">
-                    Data bersumber dari{" "}
+                    Data powered by{" "}
                     <a
                         href="https://www.themoviedb.org/"
                         target="_blank"
@@ -28,15 +28,15 @@ export default function Footer() {
                     >
                         TMDb API
                     </a>
-                    . Didesain dengan estetika sinematik modern.
+                    . Designed with modern cinematic aesthetics.
                 </p>
 
                 <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
                     <Link href="/" className="hover:text-foreground transition-colors">
-                        Beranda
+                        Home
                     </Link>
-                    <a href="#jelajahi-film" className="hover:text-foreground transition-colors">
-                        Jelajahi Film
+                    <a href="#popular-movies" className="hover:text-foreground transition-colors">
+                        Popular Movies
                     </a>
                 </div>
             </div>

@@ -1,26 +1,27 @@
 import { Movie, MovieDetail, MovieResponse, Video, VideoResponse } from "@/types/movie";
+import { PersonResponse } from "@/types/person";
 
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
 export const GENRE_MAP: Record<number, string> = {
-    28: "Aksi",
-    12: "Petualangan",
-    16: "Animasi",
-    35: "Komedi",
-    80: "Kejahatan",
-    99: "Dokumenter",
+    28: "Action",
+    12: "Adventure",
+    16: "Animation",
+    35: "Comedy",
+    80: "Crime",
+    99: "Documentary",
     18: "Drama",
-    10751: "Keluarga",
-    14: "Fantasi",
-    36: "Sejarah",
-    27: "Horor",
-    10402: "Musik",
-    9648: "Misteri",
-    10749: "Romantis",
-    878: "Fiksi Ilmiah",
-    10770: "Film TV",
+    10751: "Family",
+    14: "Fantasy",
+    36: "History",
+    27: "Horror",
+    10402: "Music",
+    9648: "Mystery",
+    10749: "Romance",
+    878: "Science Fiction",
+    10770: "TV Movie",
     53: "Thriller",
-    10752: "Perang",
+    10752: "War",
     37: "Western",
 };
 
@@ -31,7 +32,7 @@ export async function tmdbFetch<T>(
     const token = process.env.TMDB_API_READ_ACCESS_TOKEN;
 
     if (!token) {
-        throw new Error("TMDB API token belum dikonfigurasi");
+        throw new Error("TMDB API token not configured");
     }
 
     const url = new URL(`${TMDB_BASE_URL}${endpoint}`);
@@ -55,7 +56,7 @@ export async function tmdbFetch<T>(
     return response.json() as Promise<T>;
 }
 
-export async function getPopularMovies(page = 1, language = "id-ID"): Promise<MovieResponse> {
+export async function getPopularMovies(page = 1, language = "en-US"): Promise<MovieResponse> {
     return tmdbFetch<MovieResponse>("/movie/popular", {
         language,
         page: page.toString(),
@@ -64,25 +65,25 @@ export async function getPopularMovies(page = 1, language = "id-ID"): Promise<Mo
 
 export async function getTrendingMovies(timeWindow: "day" | "week" = "day"): Promise<MovieResponse> {
     return tmdbFetch<MovieResponse>(`/trending/movie/${timeWindow}`, {
-        language: "id-ID",
+        language: "en-US",
     });
 }
 
-export async function getNowPlayingMovies(page = 1, language = "id-ID"): Promise<MovieResponse> {
+export async function getNowPlayingMovies(page = 1, language = "en-US"): Promise<MovieResponse> {
     return tmdbFetch<MovieResponse>("/movie/now_playing", {
         language,
         page: page.toString(),
     });
 }
 
-export async function getTopRatedMovies(page = 1, language = "id-ID"): Promise<MovieResponse> {
+export async function getTopRatedMovies(page = 1, language = "en-US"): Promise<MovieResponse> {
     return tmdbFetch<MovieResponse>("/movie/top_rated", {
         language,
         page: page.toString(),
     });
 }
 
-export async function getUpcomingMovies(page = 1, language = "id-ID"): Promise<MovieResponse> {
+export async function getUpcomingMovies(page = 1, language = "en-US"): Promise<MovieResponse> {
     return tmdbFetch<MovieResponse>("/movie/upcoming", {
         language,
         page: page.toString(),
@@ -95,7 +96,7 @@ export async function searchMovies(query: string, page = 1): Promise<MovieRespon
     }
     return tmdbFetch<MovieResponse>("/search/movie", {
         query: query.trim(),
-        language: "id-ID",
+        language: "en-US",
         page: page.toString(),
         include_adult: "false",
     });
@@ -103,20 +104,11 @@ export async function searchMovies(query: string, page = 1): Promise<MovieRespon
 
 export async function getMovieVideos(movieId: number | string): Promise<Video[]> {
     try {
-        // Try id-ID first
-        let response = await tmdbFetch<VideoResponse>(`/movie/${movieId}/videos`, {
-            language: "id-ID",
+        const response = await tmdbFetch<VideoResponse>(`/movie/${movieId}/videos`, {
+            language: "en-US",
         });
 
         let youtubeVideos = response.results?.filter((v) => v.site === "YouTube") || [];
-
-        // If no trailers in id-ID, fetch en-US
-        if (youtubeVideos.length === 0) {
-            response = await tmdbFetch<VideoResponse>(`/movie/${movieId}/videos`, {
-                language: "en-US",
-            });
-            youtubeVideos = response.results?.filter((v) => v.site === "YouTube") || [];
-        }
 
         // Fallback to TV videos if empty
         if (youtubeVideos.length === 0) {
@@ -175,30 +167,24 @@ type TMDBTVRecItem = {
 export async function getMovieDetails(movieId: number | string): Promise<MovieDetail | null> {
     try {
         return await tmdbFetch<MovieDetail>(`/movie/${movieId}`, {
-            language: "id-ID",
+            language: "en-US",
         });
     } catch {
         try {
-            return await tmdbFetch<MovieDetail>(`/movie/${movieId}`, {
+            // Fallback to TV show endpoint
+            const tv = await tmdbFetch<TMDBTVDetail>(`/tv/${movieId}`, {
                 language: "en-US",
             });
+            return {
+                ...tv,
+                title: tv.name || tv.original_name || "",
+                release_date: tv.first_air_date || "",
+                runtime: (Array.isArray(tv.episode_run_time) && tv.episode_run_time[0]) || 45,
+                budget: 0,
+                revenue: 0,
+            } as MovieDetail;
         } catch {
-            try {
-                // Fallback to TV show endpoint
-                const tv = await tmdbFetch<TMDBTVDetail>(`/tv/${movieId}`, {
-                    language: "id-ID",
-                });
-                return {
-                    ...tv,
-                    title: tv.name || tv.original_name || "",
-                    release_date: tv.first_air_date || "",
-                    runtime: (Array.isArray(tv.episode_run_time) && tv.episode_run_time[0]) || 45,
-                    budget: 0,
-                    revenue: 0,
-                } as MovieDetail;
-            } catch {
-                return null;
-            }
+            return null;
         }
     }
 }
@@ -206,21 +192,21 @@ export async function getMovieDetails(movieId: number | string): Promise<MovieDe
 export async function getMovieRecommendations(movieId: number | string): Promise<Movie[]> {
     try {
         const data = await tmdbFetch<MovieResponse>(`/movie/${movieId}/recommendations`, {
-            language: "id-ID",
+            language: "en-US",
             page: "1",
         });
         if (data.results && data.results.length > 0) return data.results;
 
         // Fallback to similar
         const similar = await tmdbFetch<MovieResponse>(`/movie/${movieId}/similar`, {
-            language: "id-ID",
+            language: "en-US",
             page: "1",
         });
         if (similar.results && similar.results.length > 0) return similar.results;
 
         // Fallback to TV recommendations
         const tvRec = await tmdbFetch<{ results: TMDBTVRecItem[] }>(`/tv/${movieId}/recommendations`, {
-            language: "id-ID",
+            language: "en-US",
             page: "1",
         });
         return (tvRec.results || []).map((t) => ({
@@ -231,4 +217,10 @@ export async function getMovieRecommendations(movieId: number | string): Promise
     } catch {
         return [];
     }
+}
+
+export async function getTrendingPeople(timeWindow: "day" | "week" = "week"): Promise<PersonResponse> {
+    return tmdbFetch<PersonResponse>(`/trending/person/${timeWindow}`, {
+        language: "en-US",
+    });
 }

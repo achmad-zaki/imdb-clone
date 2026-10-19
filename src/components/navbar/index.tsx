@@ -15,7 +15,7 @@ export default function Navbar() {
                     <Link
                         href="/"
                         className="group flex shrink-0 items-center gap-2.5 transition-transform active:scale-95"
-                        aria-label="CINEVA Beranda"
+                        aria-label="CINEVA Home"
                     >
                         <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/20">
                             <RiFilmFill className="size-5 transition-transform group-hover:rotate-12" />

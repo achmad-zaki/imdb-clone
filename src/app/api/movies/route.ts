@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(data);
     } catch (err) {
         return NextResponse.json(
-            { error: "Gagal mengambil daftar film", details: String(err) },
+            { error: "Failed to fetch movies list", details: String(err) },
             { status: 500 }
         );
     }

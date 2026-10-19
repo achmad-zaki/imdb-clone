@@ -49,8 +49,8 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
                                 onPlayTrailer(movie);
                             }}
                             className="group/btn flex items-center gap-2 rounded-full border border-white/20 bg-white/90 px-4 py-2 text-xs font-semibold text-zinc-950 shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-105 hover:bg-white active:scale-95"
-                            title="Putar Trailer"
-                            aria-label={`Putar trailer untuk ${movie.title}`}
+                            title="Watch Trailer"
+                            aria-label={`Watch trailer for ${movie.title}`}
                         >
                             <span className="flex size-6 items-center justify-center rounded-full bg-zinc-950 text-white">
                                 <RiPlayFill className="size-3.5 fill-white" />
@@ -63,7 +63,7 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
                         href={`/movie/${movie.id}`}
                         className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-200 underline-offset-4 transition hover:text-white hover:underline"
                     >
-                        <span>Lihat Detail</span>
+                        <span>View Details</span>
                         <FaArrowRight className="size-2.5 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                 </div>

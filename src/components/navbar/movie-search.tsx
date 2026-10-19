@@ -66,43 +66,43 @@ export const SEARCH_CATEGORIES: CategoryOption[] = [
     {
         id: "all",
         label: "All",
-        description: "Semua Kategori",
-        placeholder: "Cari di CINEVA (Film, TV, Artis...)",
+        description: "All Categories",
+        placeholder: "Search CINEVA (Movies, TV, Celebs...)",
         icon: RiGlobalLine,
     },
     {
         id: "titles",
         label: "Titles",
-        description: "Film & Serial",
-        placeholder: "Cari judul film & serial...",
+        description: "Movies & Shows",
+        placeholder: "Search movie & show titles...",
         icon: RiFilmLine,
     },
     {
         id: "tv",
         label: "TV Episodes",
-        description: "Episode & Serial TV",
-        placeholder: "Cari episode & serial TV...",
+        description: "TV Episodes & Series",
+        placeholder: "Search TV episodes & series...",
         icon: RiTvLine,
     },
     {
         id: "celebs",
         label: "Celebs",
-        description: "Aktor, Aktris & Kru",
-        placeholder: "Cari aktor, aktris, sutradara...",
+        description: "Actors, Actresses & Crew",
+        placeholder: "Search actors, actresses, directors...",
         icon: RiUserStarLine,
     },
     {
         id: "companies",
         label: "Companies",
-        description: "Studio & Perusahaan",
-        placeholder: "Cari studio & rumah produksi...",
+        description: "Studios & Production",
+        placeholder: "Search production companies...",
         icon: RiBuildingLine,
     },
     {
         id: "keywords",
         label: "Keywords",
-        description: "Kata Kunci & Topik",
-        placeholder: "Cari topik atau kata kunci...",
+        description: "Keywords & Topics",
+        placeholder: "Search topics or keywords...",
         icon: RiHashtag,
     },
 ];
@@ -242,7 +242,7 @@ export function useMovieSearch() {
             })
             .catch((err: unknown) => {
                 if ((err as Error)?.name !== "AbortError" && !ignore) {
-                    setError("Gagal memuat hasil pencarian. Coba lagi.");
+                    setError("Failed to load search results. Please try again.");
                     setIsLoading(false);
                 }
             });
@@ -470,7 +470,7 @@ export function MovieSearchDesktop() {
                         "hover:bg-muted hover:text-foreground active:scale-95",
                         isCategoryOpen && "bg-muted text-primary",
                     )}
-                    aria-label="Pilih kategori pencarian"
+                    aria-label="Select search category"
                     aria-expanded={isCategoryOpen}
                 >
                     <CurrentCategoryIcon className="size-3.5 text-primary" />
@@ -510,7 +510,7 @@ export function MovieSearchDesktop() {
                     }}
                     onKeyDown={handleKeyDown}
                     placeholder={currentCategoryOption.placeholder}
-                    aria-label="Cari film"
+                    aria-label="Search movies"
                     aria-expanded={isSearchOpen}
                     aria-controls="desktop-search-dropdown"
                     autoComplete="off"
@@ -528,7 +528,7 @@ export function MovieSearchDesktop() {
                                 inputRef.current?.focus();
                             }}
                             className="flex size-5 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                            aria-label="Hapus pencarian"
+                            aria-label="Clear search"
                         >
                             <RiCloseLine className="size-3.5" />
                         </button>
@@ -553,7 +553,7 @@ export function MovieSearchDesktop() {
                         className="absolute top-full left-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border/80 bg-background/95 p-1.5 shadow-2xl backdrop-blur-xl"
                     >
                         <div className="px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                            Kategori Pencarian
+                            Search Category
                         </div>
                         <div className="space-y-0.5">
                             {SEARCH_CATEGORIES.map((cat) => {
@@ -656,7 +656,7 @@ export function MovieSearchDesktop() {
                                 <div className="p-2 space-y-2.5">
                                     <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                         <RiFireLine className="size-3.5 text-primary" />
-                                        <span>Pencarian Populer</span>
+                                        <span>Popular Searches</span>
                                     </div>
                                     <div className="flex flex-wrap gap-1.5">
                                         {POPULAR_SEARCHES.map((term) => (
@@ -683,7 +683,7 @@ export function MovieSearchDesktop() {
                                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                         <RiLoader4Line className="size-3.5 animate-spin text-primary" />
                                         <span>
-                                            Mencari di {currentCategoryOption.label}...
+                                            Searching in {currentCategoryOption.label}...
                                         </span>
                                     </div>
                                     {Array.from({ length: 3 }).map((_, index) => (
@@ -706,13 +706,13 @@ export function MovieSearchDesktop() {
                                 <div className="space-y-1">
                                     <div className="flex items-center justify-between px-2 py-1 text-xs text-muted-foreground">
                                         <span>
-                                            Hasil untuk {currentCategoryOption.label} (
+                                            Results for {currentCategoryOption.label} (
                                             {results.length})
                                         </span>
                                         {isSearching && (
                                             <span className="flex items-center gap-1 text-primary">
                                                 <RiLoader4Line className="size-3 animate-spin" />
-                                                Memperbarui...
+                                                Updating...
                                             </span>
                                         )}
                                     </div>
@@ -831,13 +831,11 @@ export function MovieSearchDesktop() {
                                     <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
                                         <RiFilmLine className="mb-2 size-8 opacity-60" />
                                         <p className="text-sm font-medium text-foreground">
-                                            Tidak ditemukan di {currentCategoryOption.label}
+                                            No results found in {currentCategoryOption.label}
                                         </p>
                                         <p className="mt-1 text-xs">
-                                            Tidak ada hasil untuk &ldquo;
-                                            {debouncedQuery}&rdquo;. Coba ganti
-                                            kategori ke &ldquo;All&rdquo; atau gunakan kata
-                                            kunci lain.
+                                            No results for &ldquo;
+                                            {debouncedQuery}&rdquo;. Try switching to &ldquo;All&rdquo; or use different keywords.
                                         </p>
                                     </div>
                                 )}
@@ -853,12 +851,12 @@ export function MovieSearchDesktop() {
                         {/* Footer Tips */}
                         <div className="flex items-center justify-between border-t border-border/50 bg-muted/20 px-3 py-2 text-[11px] text-muted-foreground">
                             <span className="inline-flex items-center gap-1">
-                                <span>Tekan</span>
+                                <span>Press</span>
                                 <kbd className="inline-flex items-center rounded border border-border/70 bg-background p-0.5"><FaArrowUp className="size-2 text-foreground" /></kbd>
                                 <kbd className="inline-flex items-center rounded border border-border/70 bg-background p-0.5"><FaArrowDown className="size-2 text-foreground" /></kbd>
-                                <span>untuk memilih,</span>
+                                <span>to navigate,</span>
                                 <kbd className="inline-flex items-center rounded border border-border/70 bg-background p-0.5"><BsArrowReturnLeft className="size-2 text-foreground" /></kbd>
-                                <span>untuk membuka</span>
+                                <span>to select</span>
                             </span>
                             <kbd className="rounded border border-border/70 bg-background px-1.5 py-0.5 font-mono text-[10px]">
                                 ESC
@@ -948,7 +946,7 @@ export function MovieSearchMobile() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                aria-label="Buka pencarian film"
+                aria-label="Open movie search"
                 onClick={handleOpen}
                 className="size-9 rounded-xl md:hidden"
             >
@@ -975,7 +973,7 @@ export function MovieSearchMobile() {
                                         variant="ghost"
                                         size="icon"
                                         onClick={handleClose}
-                                        aria-label="Tutup pencarian"
+                                        aria-label="Close search"
                                         className="size-9 shrink-0 rounded-xl"
                                     >
                                         <RiArrowLeftLine className="size-5" />
@@ -992,7 +990,7 @@ export function MovieSearchMobile() {
                                                 handleQueryChange(e.target.value)
                                             }
                                             placeholder={currentCategoryOption.placeholder}
-                                            aria-label="Cari di CINEVA"
+                                            aria-label="Search in CINEVA"
                                             className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/70"
                                         />
 
@@ -1042,7 +1040,7 @@ export function MovieSearchMobile() {
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                                                 <RiFireLine className="size-3.5 text-primary" />
-                                                <span>Pencarian Populer</span>
+                                                <span>Popular Searches</span>
                                             </div>
 
                                             <div className="flex flex-wrap gap-2">
@@ -1069,7 +1067,7 @@ export function MovieSearchMobile() {
                                             <p className="flex items-center gap-2 text-xs text-muted-foreground">
                                                 <RiLoader4Line className="size-3.5 animate-spin text-primary" />
                                                 <span>
-                                                    Mencari di {currentCategoryOption.label}...
+                                                    Searching in {currentCategoryOption.label}...
                                                 </span>
                                             </p>
                                             {Array.from({ length: 4 }).map(
@@ -1095,13 +1093,13 @@ export function MovieSearchMobile() {
                                         <div className="space-y-2">
                                             <div className="flex items-center justify-between pb-1 text-xs text-muted-foreground">
                                                 <span>
-                                                    Hasil untuk {currentCategoryOption.label} (
+                                                    Results for {currentCategoryOption.label} (
                                                     {results.length})
                                                 </span>
                                                 {isSearching && (
                                                     <span className="flex items-center gap-1 text-primary">
                                                         <RiLoader4Line className="size-3 animate-spin" />
-                                                        Memperbarui...
+                                                        Updating...
                                                     </span>
                                                 )}
                                             </div>
@@ -1226,13 +1224,11 @@ export function MovieSearchMobile() {
                                             <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
                                                 <RiFilmLine className="mb-2 size-10 opacity-50" />
                                                 <p className="text-sm font-semibold text-foreground">
-                                                    Tidak ditemukan di {currentCategoryOption.label}
+                                                    No results found in {currentCategoryOption.label}
                                                 </p>
                                                 <p className="mt-1 max-w-xs text-xs">
-                                                    Tidak ada hasil untuk &ldquo;
-                                                    {debouncedQuery}&rdquo;. Coba
-                                                    kategori &ldquo;All&rdquo; atau kata
-                                                    kunci lain.
+                                                    No results for &ldquo;
+                                                    {debouncedQuery}&rdquo;. Try category &ldquo;All&rdquo; or different keywords.
                                                 </p>
                                             </div>
                                         )}

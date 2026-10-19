@@ -31,7 +31,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
         if (!minutes || minutes <= 0) return null;
         const hrs = Math.floor(minutes / 60);
         const mins = minutes % 60;
-        return hrs > 0 ? `${hrs}j ${mins}m` : `${mins}m`;
+        return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
     };
 
     return (
@@ -56,7 +56,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                         className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur-md transition hover:bg-muted"
                     >
                         <RiArrowLeftLine className="size-4" />
-                        <span>Kembali ke Beranda</span>
+                        <span>Back to Home</span>
                     </Link>
                 </div>
 
@@ -67,7 +67,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                         <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl border border-border/80 bg-muted shadow-2xl sm:w-60">
                             <Image
                                 src={getPosterUrl(movie.poster_path)}
-                                alt={`Poster ${movie.title}`}
+                                alt={`Poster for ${movie.title}`}
                                 fill
                                 sizes="(max-width: 640px) 192px, 240px"
                                 className="object-cover"
@@ -94,7 +94,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                                     <span>{rating}</span>
                                     {movie.vote_count ? (
                                         <span className="text-[11px] font-normal opacity-80">
-                                            ({movie.vote_count.toLocaleString("id-ID")})
+                                            ({movie.vote_count.toLocaleString("en-US")})
                                         </span>
                                     ) : null}
                                 </div>
@@ -138,7 +138,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                                     <span className="flex size-6 items-center justify-center rounded-full bg-primary-foreground text-primary transition-transform group-hover:scale-110">
                                         <RiPlayFill className="size-3.5 fill-current" />
                                     </span>
-                                    <span>Tonton Trailer Resmi</span>
+                                    <span>Watch Official Trailer</span>
                                 </button>
                             </div>
                         </div>
@@ -152,21 +152,21 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                     {/* Synopsis */}
                     <div className="lg:col-span-2">
                         <h2 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
-                            Sinopsis
+                            Storyline
                         </h2>
                         <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                            {movie.overview || "Sinopsis untuk film ini belum tersedia."}
+                            {movie.overview || "Storyline for this movie is currently not available."}
                         </p>
                     </div>
 
                     {/* Metadata Card */}
                     <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs">
                         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            Informasi Tambahan
+                            Movie Details
                         </h3>
                         <dl className="mt-4 space-y-3 text-xs">
                             <div className="flex justify-between border-b border-border/60 pb-2">
-                                <dt className="text-muted-foreground">Judul Asli</dt>
+                                <dt className="text-muted-foreground">Original Title</dt>
                                 <dd className="font-semibold text-foreground text-right">{movie.original_title || movie.title}</dd>
                             </div>
                             <div className="flex justify-between border-b border-border/60 pb-2">
@@ -174,11 +174,11 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                                 <dd className="font-semibold text-foreground">{movie.status || "Released"}</dd>
                             </div>
                             <div className="flex justify-between border-b border-border/60 pb-2">
-                                <dt className="text-muted-foreground">Bahasa Asli</dt>
+                                <dt className="text-muted-foreground">Original Language</dt>
                                 <dd className="font-semibold text-foreground uppercase">{movie.original_language || "en"}</dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="text-muted-foreground">Tanggal Rilis</dt>
+                                <dt className="text-muted-foreground">Release Date</dt>
                                 <dd className="font-semibold text-foreground">{movie.release_date || "—"}</dd>
                             </div>
                         </dl>
@@ -191,7 +191,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                         <div className="flex items-center gap-2">
                             <RiFilmLine className="size-5 text-primary" />
                             <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-                                Rekomendasi Film Terkait
+                                More Like This
                             </h2>
                         </div>
 

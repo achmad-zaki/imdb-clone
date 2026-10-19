@@ -28,7 +28,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
 
             try {
                 const res = await fetch(`/api/trailer?movieId=${movie.id}`);
-                if (!res.ok) throw new Error("Gagal memuat trailer");
+                if (!res.ok) throw new Error("Failed to load trailer");
                 const data = await res.json();
                 if (isCancelled) return;
                 const vids: Video[] = data.videos || [];
@@ -47,7 +47,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                     setError(
                         err instanceof Error
                             ? err.message
-                            : "Gagal memuat trailer",
+                            : "Failed to load trailer",
                     );
                 }
             } finally {
@@ -132,7 +132,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                     <button
                         onClick={onClose}
                         className="rounded-full p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-                        aria-label="Tutup modal trailer"
+                        aria-label="Close trailer modal"
                     >
                         <RiCloseLine className="size-5" />
                     </button>
@@ -143,12 +143,12 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                     {isLoading ? (
                         <div className="flex h-full w-full flex-col items-center justify-center space-y-3 text-muted-foreground">
                             <div className="size-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
-                            <p className="text-sm font-light tracking-wide text-muted-foreground">Memuat trailer...</p>
+                            <p className="text-sm font-light tracking-wide text-muted-foreground">Loading trailer...</p>
                         </div>
                     ) : error ? (
                         <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
                             <p className="text-sm text-destructive">{error}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">Silakan coba beberapa saat lagi</p>
+                            <p className="mt-1 text-xs text-muted-foreground">Please try again later</p>
                         </div>
                     ) : activeVideo ? (
                         <iframe
@@ -162,9 +162,9 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                     ) : (
                         <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center text-muted-foreground">
                             <RiFilmLine className="mb-2 size-10 opacity-60" />
-                            <p className="text-sm font-semibold text-foreground">Trailer Tidak Tersedia</p>
+                            <p className="text-sm font-semibold text-foreground">Trailer Not Available</p>
                             <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-                                Maaf, trailer resmi untuk film &ldquo;{movie.title}&rdquo; belum tersedia di TMDB.
+                                Sorry, official trailer for &ldquo;{movie.title}&rdquo; is currently not available on TMDB.
                             </p>
                         </div>
                     )}
@@ -173,7 +173,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                 {/* Multiple Video Selection Pills */}
                 {videos.length > 1 && (
                     <div className="flex items-center gap-2 overflow-x-auto border-t border-border/60 bg-muted/20 px-5 py-3 no-scrollbar">
-                        <span className="shrink-0 text-xs font-medium text-muted-foreground">Pilihan Video:</span>
+                        <span className="shrink-0 text-xs font-medium text-muted-foreground">Videos:</span>
                         {videos.map((vid) => {
                             const isCurrent = activeVideo?.id === vid.id;
                             return (

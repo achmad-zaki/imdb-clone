@@ -62,7 +62,7 @@ type TMDBRawPersonItem = {
 type TMDBRawCompanyItem = {
     id: number;
     name: string;
-    logo_path?: string | null;
+    logo_path: string | null;
     origin_country?: string;
 };
 
@@ -72,14 +72,12 @@ type TMDBRawKeywordItem = {
 };
 
 export async function GET(request: NextRequest) {
-    const query = request.nextUrl.searchParams.get("q")?.trim();
-    const category = request.nextUrl.searchParams.get("cat")?.toLowerCase() || "all";
+    const { searchParams } = new URL(request.url);
+    const query = searchParams.get("q");
+    const category = (searchParams.get("category") || "all").toLowerCase();
 
-    if (!query) {
-        return NextResponse.json(
-            { message: "Query pencarian wajib diisi.", results: [] },
-            { status: 400 },
-        );
+    if (!query || query.trim() === "") {
+        return NextResponse.json({ results: [] });
     }
 
     try {
@@ -90,7 +88,7 @@ export async function GET(request: NextRequest) {
                 // Search across both Movies and TV series
                 const multiData = await tmdbFetch<{ results: TMDBRawMultiItem[] }>("/search/multi", {
                     query,
-                    language: "id-ID",
+                    language: "en-US",
                     include_adult: "false",
                     page: "1",
                 });
@@ -107,14 +105,14 @@ export async function GET(request: NextRequest) {
                     return {
                         id: item.id,
                         type: isMovie ? "movie" : "tv",
-                        title: title || "Tanpa Judul",
+                        title: title || "Untitled",
                         year: date ? date.slice(0, 4) : null,
                         rating: item.vote_average ? Number(item.vote_average.toFixed(1)) : null,
                         image: item.poster_path
                             ? `https://image.tmdb.org/t/p/w185${item.poster_path}`
                             : null,
                         overview: item.overview || "",
-                        badge: isMovie ? "Film" : "Serial TV",
+                        badge: isMovie ? "Movie" : "TV Show",
                         poster_path: item.poster_path || null,
                         backdrop_path: item.backdrop_path || null,
                         release_date: date || "",
@@ -129,7 +127,7 @@ export async function GET(request: NextRequest) {
                 // TV Shows / Episodes
                 const tvData = await tmdbFetch<{ results: TMDBRawTVItem[] }>("/search/tv", {
                     query,
-                    language: "id-ID",
+                    language: "en-US",
                     include_adult: "false",
                     page: "1",
                 });
@@ -137,14 +135,14 @@ export async function GET(request: NextRequest) {
                 results = (tvData.results || []).map((item) => ({
                     id: item.id,
                     type: "tv",
-                    title: item.name || item.original_name || "Tanpa Judul",
+                    title: item.name || item.original_name || "Untitled",
                     year: item.first_air_date ? item.first_air_date.slice(0, 4) : null,
                     rating: item.vote_average ? Number(item.vote_average.toFixed(1)) : null,
                     image: item.poster_path
                         ? `https://image.tmdb.org/t/p/w185${item.poster_path}`
                         : null,
                     overview: item.overview || "",
-                    badge: "Serial TV",
+                    badge: "TV Show",
                     poster_path: item.poster_path || null,
                     backdrop_path: item.backdrop_path || null,
                     release_date: item.first_air_date || "",
@@ -158,17 +156,17 @@ export async function GET(request: NextRequest) {
                 // Actors, Actresses, Directors, Crew
                 const personData = await tmdbFetch<{ results: TMDBRawPersonItem[] }>("/search/person", {
                     query,
-                    language: "id-ID",
+                    language: "en-US",
                     include_adult: "false",
                     page: "1",
                 });
 
                 results = (personData.results || []).map((item) => {
-                    let dept = item.known_for_department || "Selebritas";
-                    if (dept === "Acting") dept = "Aktor / Aktris";
-                    else if (dept === "Directing") dept = "Sutradara";
-                    else if (dept === "Writing") dept = "Penulis Naskah";
-                    else if (dept === "Production") dept = "Produser";
+                    let dept = item.known_for_department || "Celebrity";
+                    if (dept === "Acting") dept = "Actor / Actress";
+                    else if (dept === "Directing") dept = "Director";
+                    else if (dept === "Writing") dept = "Writer";
+                    else if (dept === "Production") dept = "Producer";
 
                     const knownWorks = (item.known_for || [])
                         .map((k) => k.title || k.name)
@@ -179,13 +177,13 @@ export async function GET(request: NextRequest) {
                     return {
                         id: item.id,
                         type: "person",
-                        title: item.name || item.original_name || "Tanpa Nama",
+                        title: item.name || item.original_name || "Unnamed",
                         subtitle: dept,
                         image: item.profile_path
                             ? `https://image.tmdb.org/t/p/w185${item.profile_path}`
                             : null,
-                        extra: knownWorks ? `Dikenal: ${knownWorks}` : null,
-                        badge: "Selebritas",
+                        extra: knownWorks ? `Known for: ${knownWorks}` : null,
+                        badge: "Celebrity",
                     };
                 });
                 break;
@@ -201,14 +199,14 @@ export async function GET(request: NextRequest) {
                 results = (companyData.results || []).map((item) => ({
                     id: item.id,
                     type: "company",
-                    title: item.name || "Tanpa Nama Perusahaan",
+                    title: item.name || "Unnamed Company",
                     subtitle: item.origin_country
-                        ? `Negara: ${item.origin_country}`
-                        : "Studio Produksi",
+                        ? `Country: ${item.origin_country}`
+                        : "Production Studio",
                     image: item.logo_path
                         ? `https://image.tmdb.org/t/p/w185${item.logo_path}`
                         : null,
-                    badge: "Perusahaan",
+                    badge: "Company",
                 }));
                 break;
             }
@@ -224,8 +222,8 @@ export async function GET(request: NextRequest) {
                     id: item.id,
                     type: "keyword",
                     title: item.name,
-                    subtitle: "Topik & Kata Kunci",
-                    badge: "Kata Kunci",
+                    subtitle: "Topic & Keyword",
+                    badge: "Keyword",
                 }));
                 break;
             }
@@ -235,16 +233,16 @@ export async function GET(request: NextRequest) {
                 // Multi search: movies, tv shows, people
                 const multiData = await tmdbFetch<{ results: TMDBRawMultiItem[] }>("/search/multi", {
                     query,
-                    language: "id-ID",
+                    language: "en-US",
                     include_adult: "false",
                     page: "1",
                 });
 
                 results = (multiData.results || []).map((item) => {
                     if (item.media_type === "person") {
-                        let dept = item.known_for_department || "Selebritas";
-                        if (dept === "Acting") dept = "Aktor / Aktris";
-                        else if (dept === "Directing") dept = "Sutradara";
+                        let dept = item.known_for_department || "Celebrity";
+                        if (dept === "Acting") dept = "Actor / Actress";
+                        else if (dept === "Directing") dept = "Director";
 
                         const knownWorks = (item.known_for || [])
                             .map((k) => k.title || k.name)
@@ -255,13 +253,13 @@ export async function GET(request: NextRequest) {
                         return {
                             id: item.id,
                             type: "person",
-                            title: item.name || item.original_name || "Tanpa Nama",
+                            title: item.name || item.original_name || "Unnamed",
                             subtitle: dept,
                             image: item.profile_path
                                 ? `https://image.tmdb.org/t/p/w185${item.profile_path}`
                                 : null,
-                            extra: knownWorks ? `Dikenal: ${knownWorks}` : null,
-                            badge: "Selebritas",
+                            extra: knownWorks ? `Known for: ${knownWorks}` : null,
+                            badge: "Celebrity",
                         };
                     }
 
@@ -274,7 +272,7 @@ export async function GET(request: NextRequest) {
                     return {
                         id: item.id,
                         type: isMovie ? "movie" : "tv",
-                        title: title || "Tanpa Judul",
+                        title: title || "Untitled",
                         year: date ? date.slice(0, 4) : null,
                         rating: item.vote_average
                             ? Number(item.vote_average.toFixed(1))
@@ -283,7 +281,7 @@ export async function GET(request: NextRequest) {
                             ? `https://image.tmdb.org/t/p/w185${item.poster_path}`
                             : null,
                         overview: item.overview || "",
-                        badge: isMovie ? "Film" : "Serial TV",
+                        badge: isMovie ? "Movie" : "TV Show",
                         poster_path: item.poster_path || null,
                         backdrop_path: item.backdrop_path || null,
                         release_date: date || "",
@@ -300,7 +298,7 @@ export async function GET(request: NextRequest) {
         console.error("TMDB search error:", error);
 
         return NextResponse.json(
-            { message: "Gagal memproses pencarian.", results: [] },
+            { message: "Failed to process search.", results: [] },
             { status: 502 },
         );
     }

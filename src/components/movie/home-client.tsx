@@ -2,15 +2,22 @@
 
 import { useState } from "react";
 import { Movie } from "@/types/movie";
+import { Person } from "@/types/person";
 import HeroSpotlight from "@/components/movie/hero-spotlight";
+import TrendingPeople from "@/components/movie/trending-people";
 import MovieExplorer from "@/components/movie/movie-explorer";
 
 type HomeClientProps = {
     trendingMovies: Movie[];
     popularMovies: Movie[];
+    trendingPeople: Person[];
 };
 
-export default function HomeClient({ trendingMovies, popularMovies }: HomeClientProps) {
+export default function HomeClient({
+    trendingMovies,
+    popularMovies,
+    trendingPeople,
+}: HomeClientProps) {
     const [activeTrailerMovie, setActiveTrailerMovie] = useState<Movie | null>(null);
 
     return (
@@ -21,7 +28,10 @@ export default function HomeClient({ trendingMovies, popularMovies }: HomeClient
                 onPlayTrailer={(movie) => setActiveTrailerMovie(movie)}
             />
 
-            {/* Interactive Minimalist Explorer */}
+            {/* Trending People Carousel */}
+            <TrendingPeople people={trendingPeople} />
+
+            {/* Interactive Popular Movies Explorer */}
             <MovieExplorer
                 initialMovies={popularMovies}
                 activeTrailerMovie={activeTrailerMovie}

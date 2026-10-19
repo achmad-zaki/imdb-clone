@@ -55,7 +55,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                     {/* Badge */}
                     <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md shadow-xs">
                         <RiFireFill className="size-3.5 fill-current" />
-                        <span>Sedang Tren #{activeIndex + 1}</span>
+                        <span>Trending #{activeIndex + 1}</span>
                     </div>
 
                     {/* Movie Title */}
@@ -94,7 +94,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
 
                     {/* Overview */}
                     <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-                        {activeMovie.overview || "Sinopsis film belum tersedia."}
+                        {activeMovie.overview || "Overview is currently not available."}
                     </p>
 
                     {/* Action CTAs */}
@@ -107,7 +107,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                             <span className="flex size-6 items-center justify-center rounded-full bg-primary-foreground text-primary transition-transform group-hover:scale-110">
                                 <RiPlayFill className="size-3.5 fill-current" />
                             </span>
-                            <span>Tonton Trailer</span>
+                            <span>Watch Trailer</span>
                         </button>
 
                         <Link
@@ -115,14 +115,14 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                             className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/80 px-5 py-3 text-sm font-medium text-foreground backdrop-blur-md transition-all duration-200 hover:bg-muted"
                         >
                             <RiInformationLine className="size-4 text-muted-foreground" />
-                            <span>Detail Film</span>
+                            <span>Movie Details</span>
                         </Link>
                     </div>
                 </div>
 
                 {/* Thumbnail Switcher for Featured Movies */}
                 <div className="mt-8 flex items-center justify-between gap-4 border-t border-border/60 pt-4 sm:mt-12">
-                    <span className="text-xs font-medium text-muted-foreground">Pilihan Sorotan:</span>
+                    <span className="text-xs font-medium text-muted-foreground">Featured Spotlight:</span>
                     <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                         {featured.map((movie, idx) => {
                             const isSelected = idx === activeIndex;

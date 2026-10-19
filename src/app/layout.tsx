@@ -20,10 +20,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CINEVA — Film Populer, Trailer & Pencarian Film",
+  title: "CINEVA — Popular Movies, Trailers & Celebrities",
   description:
-    "Eksplorasi film populer terkini, tonton trailer resmi dalam resolusi tinggi, dan cari ribuan film dengan desain minimalis modern.",
-  keywords: ["film populer", "trailer film", "nonton trailer", "tmdb", "bioskop", "cinema", "movie explorer"],
+    "Explore the latest popular movies, watch official HD trailers, and discover thousands of titles and celebrities with modern cinematic aesthetic.",
+  keywords: ["popular movies", "movie trailers", "watch trailers", "tmdb", "cinema", "movie explorer", "imdb clone", "celebrities"],
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="id"
+      lang="en"
       className={cn("h-full antialiased", inter.variable, geistMono.variable)}
       suppressHydrationWarning
     >

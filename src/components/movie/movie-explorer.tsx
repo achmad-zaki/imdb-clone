@@ -120,7 +120,7 @@ export default function MovieExplorer({
             {/* Control Bar: Categories & Search */}
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                 {/* Minimalist Category Tabs */}
-                <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none sm:pb-0">
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar sm:pb-0">
                     {CATEGORIES.map((cat) => {
                         const Icon = cat.icon;
                         const isActive = selectedCategory === cat.id && !debouncedQuery;
@@ -133,8 +133,8 @@ export default function MovieExplorer({
                                 }}
                                 className={`inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-medium transition-all duration-200 ${
                                     isActive
-                                        ? "bg-zinc-100 text-zinc-950 shadow-sm"
-                                        : "bg-zinc-900/80 text-zinc-400 hover:bg-zinc-850 hover:text-zinc-200 border border-zinc-800/80"
+                                        ? "bg-primary text-primary-foreground shadow-xs font-semibold"
+                                        : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/60"
                                 }`}
                             >
                                 <Icon className="size-3.5" />
@@ -146,7 +146,7 @@ export default function MovieExplorer({
 
                 {/* Minimalist Search Input */}
                 <div className="relative w-full max-w-md">
-                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-500">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-muted-foreground">
                         <RiSearchLine className="size-4" />
                     </div>
                     <input
@@ -154,13 +154,13 @@ export default function MovieExplorer({
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Cari film atau kata kunci..."
-                        className="w-full rounded-full border border-zinc-800 bg-zinc-900/90 py-2.5 pl-10 pr-10 text-xs text-zinc-100 placeholder-zinc-500 transition-colors focus:border-zinc-500 focus:bg-zinc-900 focus:outline-none focus:ring-1 focus:ring-zinc-500"
+                        className="w-full rounded-full border border-border/80 bg-muted/40 py-2.5 pl-10 pr-10 text-xs text-foreground placeholder:text-muted-foreground transition-colors focus:border-primary/70 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
                     />
                     {searchQuery && (
                         <button
                             type="button"
                             onClick={handleClearSearch}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 hover:text-white"
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
                             aria-label="Hapus pencarian"
                         >
                             <RiCloseLine className="size-4" />
@@ -170,8 +170,8 @@ export default function MovieExplorer({
             </div>
 
             {/* Genre Filter Pills */}
-            <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-2 text-xs">
-                <span className="shrink-0 text-zinc-500 font-medium mr-1">Genre:</span>
+            <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-2 text-xs no-scrollbar">
+                <span className="shrink-0 text-muted-foreground font-medium mr-1">Genre:</span>
                 {POPULAR_GENRES.map((g) => {
                     const isSelected = selectedGenreId === g.id;
                     return (
@@ -180,8 +180,8 @@ export default function MovieExplorer({
                             onClick={() => setSelectedGenreId(g.id)}
                             className={`shrink-0 rounded-md px-3 py-1 transition-all ${
                                 isSelected
-                                    ? "bg-amber-400/10 border border-amber-400/40 text-amber-300 font-medium"
-                                    : "bg-zinc-900/50 border border-zinc-800/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                                    ? "bg-primary/10 border border-primary/40 text-primary font-medium"
+                                    : "bg-muted/50 border border-border/60 text-muted-foreground hover:border-border hover:text-foreground"
                             }`}
                         >
                             {g.name}
@@ -191,14 +191,14 @@ export default function MovieExplorer({
             </div>
 
             {/* Results Header Status */}
-            <div className="mt-8 flex items-center justify-between border-b border-zinc-900 pb-4">
+            <div className="mt-8 flex items-center justify-between border-b border-border/60 pb-4">
                 <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-semibold tracking-tight text-zinc-100 sm:text-2xl">
+                    <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
                         {debouncedQuery
                             ? `Hasil Pencarian: "${debouncedQuery}"`
                             : CATEGORIES.find((c) => c.id === selectedCategory)?.label || "Daftar Film"}
                     </h2>
-                    <span className="rounded-full bg-zinc-900 px-2.5 py-0.5 text-xs text-zinc-400">
+                    <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground font-medium">
                         {filteredMovies.length} film
                     </span>
                 </div>
@@ -206,7 +206,7 @@ export default function MovieExplorer({
                 {selectedGenreId !== 0 && (
                     <button
                         onClick={() => setSelectedGenreId(0)}
-                        className="text-xs text-zinc-400 underline-offset-4 hover:text-white hover:underline"
+                        className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
                     >
                         Reset filter genre
                     </button>
@@ -218,9 +218,9 @@ export default function MovieExplorer({
                 <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
                     {Array.from({ length: 12 }).map((_, i) => (
                         <div key={i} className="flex flex-col space-y-2.5 animate-pulse">
-                            <div className="aspect-[2/3] w-full rounded-xl bg-zinc-900" />
-                            <div className="h-3 w-3/4 rounded bg-zinc-850" />
-                            <div className="h-2.5 w-1/2 rounded bg-zinc-900" />
+                            <div className="aspect-[2/3] w-full rounded-xl bg-muted" />
+                            <div className="h-3 w-3/4 rounded bg-muted/80" />
+                            <div className="h-2.5 w-1/2 rounded bg-muted/60" />
                         </div>
                     ))}
                 </div>
@@ -236,13 +236,13 @@ export default function MovieExplorer({
                 </div>
             ) : (
                 <div className="mt-16 flex flex-col items-center justify-center text-center">
-                    <div className="flex size-14 items-center justify-center rounded-full bg-zinc-900 text-zinc-500">
+                    <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
                         <RiFilmLine className="size-6" />
                     </div>
-                    <h3 className="mt-4 text-base font-medium text-zinc-200">
+                    <h3 className="mt-4 text-base font-semibold text-foreground">
                         Tidak ada film yang ditemukan
                     </h3>
-                    <p className="mt-1 text-xs text-zinc-500 max-w-sm">
+                    <p className="mt-1 text-xs text-muted-foreground max-w-sm">
                         {debouncedQuery
                             ? `Tidak ada film yang cocok dengan kata kunci "${debouncedQuery}". Coba kata kunci lain.`
                             : "Tidak ada film pada filter yang Anda pilih."}
@@ -253,7 +253,7 @@ export default function MovieExplorer({
                             handleClearSearch();
                             setSelectedGenreId(0);
                         }}
-                        className="mt-4 rounded-full border border-zinc-700 bg-zinc-800 px-4 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-700 hover:text-white"
+                        className="mt-4 rounded-full border border-border/80 bg-card px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted"
                     >
                         Tampilkan Semua Film
                     </button>

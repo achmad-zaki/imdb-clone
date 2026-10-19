@@ -35,7 +35,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
     };
 
     return (
-        <div className="relative min-h-screen bg-zinc-950 text-zinc-100">
+        <div className="relative min-h-screen bg-background text-foreground transition-colors duration-300">
             {/* Cinematic Backdrop Hero */}
             <div className="relative min-h-[460px] w-full overflow-hidden sm:min-h-[520px]">
                 <Image
@@ -44,16 +44,16 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                     fill
                     priority
                     sizes="100vw"
-                    className="object-cover object-top opacity-35"
+                    className="object-cover object-top opacity-35 dark:opacity-50"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-zinc-950/30" />
-                <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
 
                 {/* Back navigation */}
                 <div className="relative z-10 mx-auto max-w-7xl px-4 pt-6 sm:px-8">
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900/80 px-4 py-2 text-xs font-medium text-zinc-300 backdrop-blur-md transition hover:border-zinc-700 hover:bg-zinc-800 hover:text-white"
+                        className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur-md transition hover:bg-muted"
                     >
                         <RiArrowLeftLine className="size-4" />
                         <span>Kembali ke Beranda</span>
@@ -64,7 +64,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                 <div className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-8">
                     <div className="flex flex-col gap-8 md:flex-row md:items-end">
                         {/* Poster */}
-                        <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 shadow-2xl sm:w-60">
+                        <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl border border-border/80 bg-muted shadow-2xl sm:w-60">
                             <Image
                                 src={getPosterUrl(movie.poster_path)}
                                 alt={`Poster ${movie.title}`}
@@ -78,37 +78,37 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                         {/* Title & Metadata */}
                         <div className="flex flex-col max-w-3xl">
                             {movie.tagline && (
-                                <p className="text-xs font-medium uppercase tracking-wider text-amber-400/90">
+                                <p className="text-xs font-semibold uppercase tracking-wider text-primary">
                                     &ldquo;{movie.tagline}&rdquo;
                                 </p>
                             )}
 
-                            <h1 className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
+                            <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
                                 {movie.title}
                             </h1>
 
                             {/* Meta pills */}
                             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs sm:text-sm">
-                                <div className="flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-400">
-                                    <RiStarFill className="size-3.5 fill-amber-400" />
+                                <div className="flex items-center gap-1 rounded-md border border-primary/30 bg-primary/10 px-2.5 py-1 font-semibold text-primary">
+                                    <RiStarFill className="size-3.5 fill-current" />
                                     <span>{rating}</span>
                                     {movie.vote_count ? (
-                                        <span className="text-[11px] font-normal text-amber-300/70">
+                                        <span className="text-[11px] font-normal opacity-80">
                                             ({movie.vote_count.toLocaleString("id-ID")})
                                         </span>
                                     ) : null}
                                 </div>
 
                                 {year && (
-                                    <div className="flex items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-1 text-zinc-300">
-                                        <RiCalendarLine className="size-3.5 text-zinc-500" />
+                                    <div className="flex items-center gap-1 rounded-md border border-border/60 bg-muted/60 px-2.5 py-1 text-muted-foreground font-medium">
+                                        <RiCalendarLine className="size-3.5" />
                                         <span>{year}</span>
                                     </div>
                                 )}
 
                                 {formatRuntime(movie.runtime) && (
-                                    <div className="flex items-center gap-1 rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-1 text-zinc-300">
-                                        <RiTimeLine className="size-3.5 text-zinc-500" />
+                                    <div className="flex items-center gap-1 rounded-md border border-border/60 bg-muted/60 px-2.5 py-1 text-muted-foreground font-medium">
+                                        <RiTimeLine className="size-3.5" />
                                         <span>{formatRuntime(movie.runtime)}</span>
                                     </div>
                                 )}
@@ -120,7 +120,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                                     {movie.genres.map((g) => (
                                         <span
                                             key={g.id}
-                                            className="rounded-md border border-zinc-800 bg-zinc-900/80 px-2.5 py-0.5 text-xs text-zinc-300"
+                                            className="rounded-md border border-border/60 bg-muted/80 px-2.5 py-0.5 text-xs font-medium text-foreground"
                                         >
                                             {g.name}
                                         </span>
@@ -133,10 +133,10 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                                 <button
                                     type="button"
                                     onClick={() => setTrailerMovie(movie)}
-                                    className="group inline-flex items-center gap-2.5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-zinc-950 shadow-xl transition-all duration-200 hover:scale-105 hover:bg-zinc-100 active:scale-95"
+                                    className="group inline-flex items-center gap-2.5 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
                                 >
-                                    <span className="flex size-6 items-center justify-center rounded-full bg-zinc-950 text-white transition-transform group-hover:scale-110">
-                                        <RiPlayFill className="size-3.5 fill-white" />
+                                    <span className="flex size-6 items-center justify-center rounded-full bg-primary-foreground text-primary transition-transform group-hover:scale-110">
+                                        <RiPlayFill className="size-3.5 fill-current" />
                                     </span>
                                     <span>Tonton Trailer Resmi</span>
                                 </button>
@@ -151,35 +151,35 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
                     {/* Synopsis */}
                     <div className="lg:col-span-2">
-                        <h2 className="text-lg font-semibold tracking-tight text-white sm:text-xl">
+                        <h2 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
                             Sinopsis
                         </h2>
-                        <p className="mt-3 text-sm leading-relaxed text-zinc-300 sm:text-base">
+                        <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
                             {movie.overview || "Sinopsis untuk film ini belum tersedia."}
                         </p>
                     </div>
 
                     {/* Metadata Card */}
-                    <div className="rounded-2xl border border-zinc-850 bg-zinc-900/40 p-6 backdrop-blur-sm">
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                    <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs">
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                             Informasi Tambahan
                         </h3>
                         <dl className="mt-4 space-y-3 text-xs">
-                            <div className="flex justify-between border-b border-zinc-850 pb-2">
-                                <dt className="text-zinc-500">Judul Asli</dt>
-                                <dd className="font-medium text-zinc-200 text-right">{movie.original_title || movie.title}</dd>
+                            <div className="flex justify-between border-b border-border/60 pb-2">
+                                <dt className="text-muted-foreground">Judul Asli</dt>
+                                <dd className="font-semibold text-foreground text-right">{movie.original_title || movie.title}</dd>
                             </div>
-                            <div className="flex justify-between border-b border-zinc-850 pb-2">
-                                <dt className="text-zinc-500">Status</dt>
-                                <dd className="font-medium text-zinc-200">{movie.status || "Released"}</dd>
+                            <div className="flex justify-between border-b border-border/60 pb-2">
+                                <dt className="text-muted-foreground">Status</dt>
+                                <dd className="font-semibold text-foreground">{movie.status || "Released"}</dd>
                             </div>
-                            <div className="flex justify-between border-b border-zinc-850 pb-2">
-                                <dt className="text-zinc-500">Bahasa Asli</dt>
-                                <dd className="font-medium text-zinc-200 uppercase">{movie.original_language || "en"}</dd>
+                            <div className="flex justify-between border-b border-border/60 pb-2">
+                                <dt className="text-muted-foreground">Bahasa Asli</dt>
+                                <dd className="font-semibold text-foreground uppercase">{movie.original_language || "en"}</dd>
                             </div>
                             <div className="flex justify-between">
-                                <dt className="text-zinc-500">Tanggal Rilis</dt>
-                                <dd className="font-medium text-zinc-200">{movie.release_date || "—"}</dd>
+                                <dt className="text-muted-foreground">Tanggal Rilis</dt>
+                                <dd className="font-semibold text-foreground">{movie.release_date || "—"}</dd>
                             </div>
                         </dl>
                     </div>
@@ -187,10 +187,10 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
 
                 {/* Recommendations */}
                 {recommendations.length > 0 && (
-                    <div className="mt-16 border-t border-zinc-900 pt-12">
+                    <div className="mt-16 border-t border-border/60 pt-12">
                         <div className="flex items-center gap-2">
-                            <RiFilmLine className="size-5 text-amber-400" />
-                            <h2 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+                            <RiFilmLine className="size-5 text-primary" />
+                            <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
                                 Rekomendasi Film Terkait
                             </h2>
                         </div>

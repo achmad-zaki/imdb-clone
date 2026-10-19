@@ -29,7 +29,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
         .slice(0, 3);
 
     return (
-        <section className="relative min-h-[500px] w-full overflow-hidden bg-zinc-950 sm:min-h-[580px] lg:min-h-[640px]">
+        <section className="relative min-h-[500px] w-full overflow-hidden bg-background sm:min-h-[580px] lg:min-h-[640px] transition-colors duration-300">
             {/* Backdrop Image with Multi-directional Gradient Masks */}
             <div className="absolute inset-0 z-0">
                 <Image
@@ -39,49 +39,49 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                     fill
                     priority
                     sizes="100vw"
-                    className="object-cover object-center transition-opacity duration-700 ease-in-out"
+                    className="object-cover object-center transition-opacity duration-700 ease-in-out opacity-40 dark:opacity-60"
                 />
 
-                {/* Dark Minimalist Vignette Gradients */}
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent sm:w-3/4" />
-                <div className="absolute inset-0 bg-zinc-950/30 backdrop-blur-[1px]" />
+                {/* Theme-Adaptive Vignette Gradients */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
+                <div className="absolute inset-0 bg-background/10 backdrop-blur-[1px]" />
             </div>
 
             {/* Content Container */}
             <div className="relative z-10 mx-auto flex h-full min-h-[500px] max-w-7xl flex-col justify-end px-4 pb-12 pt-28 sm:min-h-[580px] sm:px-8 sm:pb-16 lg:min-h-[640px]">
                 <div className="max-w-2xl">
                     {/* Badge */}
-                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400 backdrop-blur-md">
-                        <RiFireFill className="size-3.5 fill-amber-400" />
+                    <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md shadow-xs">
+                        <RiFireFill className="size-3.5 fill-current" />
                         <span>Sedang Tren #{activeIndex + 1}</span>
                     </div>
 
                     {/* Movie Title */}
-                    <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
                         {activeMovie.title}
                     </h1>
 
                     {/* Meta info & genres */}
-                    <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-zinc-300">
-                        <span className="flex items-center gap-1 font-semibold text-amber-400">
-                            <RiStarFill className="size-4 fill-amber-400" />
+                    <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1 font-semibold text-amber-500">
+                            <RiStarFill className="size-4 fill-amber-500" />
                             {rating}
                         </span>
                         {year && (
                             <>
-                                <span className="text-zinc-600">•</span>
-                                <span className="text-zinc-400">{year}</span>
+                                <span>•</span>
+                                <span>{year}</span>
                             </>
                         )}
                         {genres.length > 0 && (
                             <>
-                                <span className="text-zinc-600">•</span>
+                                <span>•</span>
                                 <div className="flex flex-wrap gap-1.5">
                                     {genres.map((g) => (
                                         <span
                                             key={g}
-                                            className="rounded-md border border-zinc-700/60 bg-zinc-900/60 px-2 py-0.5 text-xs font-normal text-zinc-300 backdrop-blur-sm"
+                                            className="rounded-md border border-border/60 bg-muted/60 px-2 py-0.5 text-xs font-medium text-foreground backdrop-blur-sm"
                                         >
                                             {g}
                                         </span>
@@ -92,7 +92,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                     </div>
 
                     {/* Overview */}
-                    <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-zinc-400 sm:text-base">
+                    <p className="mt-4 line-clamp-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
                         {activeMovie.overview || "Sinopsis film belum tersedia."}
                     </p>
 
@@ -101,54 +101,55 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                         <button
                             type="button"
                             onClick={() => onPlayTrailer(activeMovie)}
-                            className="group inline-flex items-center gap-2.5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-zinc-950 shadow-lg shadow-white/10 transition-all duration-200 hover:scale-105 hover:bg-zinc-100 active:scale-95"
+                            className="group inline-flex items-center gap-2.5 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-200 hover:scale-105 active:scale-95"
                         >
-                            <span className="flex size-6 items-center justify-center rounded-full bg-zinc-950 text-white transition-transform group-hover:scale-110">
-                                <RiPlayFill className="size-3.5 fill-white" />
+                            <span className="flex size-6 items-center justify-center rounded-full bg-primary-foreground text-primary transition-transform group-hover:scale-110">
+                                <RiPlayFill className="size-3.5 fill-current" />
                             </span>
                             <span>Tonton Trailer</span>
                         </button>
 
                         <Link
                             href={`/movie/${activeMovie.id}`}
-                            className="inline-flex items-center gap-2 rounded-full border border-zinc-700/80 bg-zinc-900/80 px-5 py-3 text-sm font-medium text-zinc-200 backdrop-blur-md transition-all duration-200 hover:border-zinc-500 hover:bg-zinc-800 hover:text-white"
+                            className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/80 px-5 py-3 text-sm font-medium text-foreground backdrop-blur-md transition-all duration-200 hover:bg-muted"
                         >
-                            <RiInformationLine className="size-4 text-zinc-400" />
+                            <RiInformationLine className="size-4 text-muted-foreground" />
                             <span>Detail Film</span>
                         </Link>
                     </div>
                 </div>
 
                 {/* Thumbnail Switcher for Featured Movies */}
-                <div className="mt-8 flex items-center justify-between gap-4 border-t border-zinc-800/60 pt-4 sm:mt-12">
-                    <span className="text-xs font-medium text-zinc-500">Pilihan Sorotan:</span>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                <div className="mt-8 flex items-center justify-between gap-4 border-t border-border/60 pt-4 sm:mt-12">
+                    <span className="text-xs font-medium text-muted-foreground">Pilihan Sorotan:</span>
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
                         {featured.map((movie, idx) => {
                             const isSelected = idx === activeIndex;
                             return (
                                 <button
                                     key={movie.id}
                                     onClick={() => setActiveIndex(idx)}
-                                    className={`group relative flex shrink-0 items-center gap-2 rounded-lg border p-1 text-left transition-all duration-200 ${
+                                    className={`group relative flex shrink-0 items-center gap-2 rounded-xl border p-1 text-left transition-all duration-200 ${
                                         isSelected
-                                            ? "border-amber-400/80 bg-zinc-900 shadow-md ring-1 ring-amber-400/40"
-                                            : "border-zinc-800/80 bg-zinc-950/60 hover:border-zinc-700 hover:bg-zinc-900/80"
+                                            ? "border-primary bg-card shadow-md ring-1 ring-primary/40"
+                                            : "border-border/60 bg-card/60 hover:border-border hover:bg-card"
                                     }`}
                                     title={movie.title}
                                 >
-                                    <div className="relative h-10 w-7 overflow-hidden rounded bg-zinc-800">
+                                    <div className="relative h-10 w-7 overflow-hidden rounded-lg bg-muted">
                                         <Image
                                             src={getPosterUrl(movie.poster_path, "w92")}
                                             alt={movie.title}
                                             fill
+                                            sizes="28px"
                                             className="object-cover"
                                         />
                                     </div>
                                     <div className="hidden pr-2 sm:block">
-                                        <p className="max-w-[100px] truncate text-xs font-medium text-zinc-200">
+                                        <p className="max-w-[100px] truncate text-xs font-semibold text-foreground">
                                             {movie.title}
                                         </p>
-                                        <p className="text-[10px] text-zinc-500">
+                                        <p className="text-[10px] text-muted-foreground font-medium">
                                             ★ {movie.vote_average.toFixed(1)}
                                         </p>
                                     </div>

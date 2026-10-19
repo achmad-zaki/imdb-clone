@@ -14,7 +14,7 @@ export default function HomeClient({ trendingMovies, popularMovies }: HomeClient
     const [activeTrailerMovie, setActiveTrailerMovie] = useState<Movie | null>(null);
 
     return (
-        <div className="flex min-h-screen flex-col bg-zinc-950 text-zinc-100">
+        <div className="flex min-h-screen flex-col bg-background text-foreground transition-colors duration-300">
             {/* Minimalist Hero Spotlight */}
             <HeroSpotlight
                 movies={trendingMovies.length > 0 ? trendingMovies : popularMovies}

@@ -21,7 +21,7 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
     return (
         <div className="group relative flex flex-col">
             {/* Poster Card Container */}
-            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900 shadow-sm transition-all duration-300 hover:border-zinc-700 hover:shadow-xl hover:shadow-black/50">
+            <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-border/70 bg-muted shadow-xs transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5">
                 <Image
                     src={getPosterUrl(movie.poster_path)}
                     alt={`Poster ${movie.title}`}
@@ -32,9 +32,9 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
                 />
 
                 {/* Rating Badge */}
-                <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1 rounded-md border border-black/20 bg-black/70 px-2 py-0.5 text-xs font-medium text-amber-400 backdrop-blur-md">
+                <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1 rounded-md border border-black/20 bg-black/75 px-2 py-0.5 text-xs font-semibold text-amber-400 backdrop-blur-md shadow-xs">
                     <RiStarFill className="size-3 fill-amber-400" />
-                    <span className="text-zinc-100">{rating}</span>
+                    <span className="text-white">{rating}</span>
                 </div>
 
                 {/* Hover Overlay with Trailer Quick Action */}
@@ -47,7 +47,7 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
                                 e.stopPropagation();
                                 onPlayTrailer(movie);
                             }}
-                            className="group/btn flex items-center gap-2 rounded-full border border-white/20 bg-white/90 px-4 py-2 text-xs font-medium text-zinc-950 shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-105 hover:bg-white active:scale-95"
+                            className="group/btn flex items-center gap-2 rounded-full border border-white/20 bg-white/90 px-4 py-2 text-xs font-semibold text-zinc-950 shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-105 hover:bg-white active:scale-95"
                             title="Putar Trailer"
                             aria-label={`Putar trailer untuk ${movie.title}`}
                         >
@@ -60,7 +60,7 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
 
                     <Link
                         href={`/movie/${movie.id}`}
-                        className="mt-3 text-[11px] font-medium text-zinc-300 underline-offset-4 transition hover:text-white hover:underline"
+                        className="mt-3 text-[11px] font-medium text-zinc-200 underline-offset-4 transition hover:text-white hover:underline"
                     >
                         Lihat Detail &rarr;
                     </Link>
@@ -71,13 +71,13 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
             <div className="mt-2.5 flex flex-col px-0.5">
                 <Link
                     href={`/movie/${movie.id}`}
-                    className="line-clamp-1 text-sm font-medium tracking-tight text-zinc-100 transition hover:text-white"
+                    className="line-clamp-1 text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-primary"
                     title={movie.title}
                 >
                     {movie.title}
                 </Link>
                 {year && (
-                    <span className="text-xs text-zinc-400 mt-0.5">{year}</span>
+                    <span className="text-xs text-muted-foreground mt-0.5">{year}</span>
                 )}
             </div>
         </div>

@@ -3,7 +3,6 @@
 
 import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
-import { flushSync } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 import { RiMoonLine, RiSunLine } from "@remixicon/react";
@@ -30,28 +29,30 @@ export function ThemeToggle() {
         const nextTheme =
             resolvedTheme === "dark" ? "light" : "dark";
 
-        const x = event.clientX;
-        const y = event.clientY;
-
-        const doc = document as ViewTransitionDocument;
+        const doc = typeof document !== "undefined" ? (document as ViewTransitionDocument) : null;
 
         // Fallback jika browser belum mendukung View Transition API.
         if (
-            !doc.startViewTransition ||
+            !doc?.startViewTransition ||
             window.matchMedia("(prefers-reduced-motion: reduce)").matches
         ) {
             setTheme(nextTheme);
             return;
         }
 
+        const x = event.clientX;
+        const y = event.clientY;
+
         document.documentElement.style.setProperty("--ripple-x", `${x}px`);
         document.documentElement.style.setProperty("--ripple-y", `${y}px`);
 
-        doc.startViewTransition(() => {
-            flushSync(() => {
+        try {
+            doc.startViewTransition(() => {
                 setTheme(nextTheme);
             });
-        });
+        } catch {
+            setTheme(nextTheme);
+        }
     }
 
     if (!mounted) {

@@ -1,33 +1,49 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Movie } from "@/types/movie";
 import MovieCard from "@/components/movie/movie-card";
 import TrailerModal from "@/components/movie/trailer-modal";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format, isValid, parseISO } from "date-fns";
+import { cn } from "@/lib/utils";
 import {
+    RiArrowDownSLine,
     RiCalendarLine,
+    RiCloseLine,
     RiFilmLine,
     RiFilter3Line,
     RiFireLine,
-    RiSortDesc,
+    RiLoader4Line,
+    RiRestartLine,
     RiStarLine,
 } from "@remixicon/react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 import { AnimatePresence, motion } from "framer-motion";
 
-const POPULAR_GENRES = [
-    { id: 0, name: "All Genres" },
+const ALL_GENRES = [
     { id: 28, name: "Action" },
     { id: 12, name: "Adventure" },
     { id: 16, name: "Animation" },
     { id: 35, name: "Comedy" },
+    { id: 80, name: "Crime" },
+    { id: 99, name: "Documentary" },
     { id: 18, name: "Drama" },
-    { id: 878, name: "Sci-Fi" },
+    { id: 10751, name: "Family" },
+    { id: 14, name: "Fantasy" },
+    { id: 36, name: "History" },
     { id: 27, name: "Horror" },
+    { id: 10402, name: "Music" },
     { id: 9648, name: "Mystery" },
     { id: 10749, name: "Romance" },
+    { id: 878, name: "Sci-Fi" },
+    { id: 10770, name: "TV Movie" },
     { id: 53, name: "Thriller" },
+    { id: 10752, name: "War" },
+    { id: 37, name: "Western" },
 ];
 
 const SORT_OPTIONS: { id: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -41,27 +57,255 @@ type MoviesCatalogViewProps = {
     currentPage: number;
     totalPages: number;
     currentSort: string;
+    currentGenre?: string;
+    currentFromDate?: string;
+    currentToDate?: string;
     totalResults: number;
 };
+
+// Date Picker component using Shadcn Calendar & Popover
+function DatePickerField({
+    id,
+    label,
+    value,
+    onChange,
+    fallbackMonthDate,
+    placeholder = "Pick a date",
+}: {
+    id: string;
+    label: string;
+    value: string;
+    onChange: (val: string) => void;
+    fallbackMonthDate?: string;
+    placeholder?: string;
+}) {
+    const [open, setOpen] = useState(false);
+
+    const parsedDate = useMemo(() => {
+        if (!value) return undefined;
+        try {
+            const d = parseISO(value);
+            return isValid(d) ? d : undefined;
+        } catch {
+            return undefined;
+        }
+    }, [value]);
+
+    const defaultMonth = useMemo(() => {
+        if (parsedDate) return parsedDate;
+        if (fallbackMonthDate) {
+            try {
+                const fb = parseISO(fallbackMonthDate);
+                if (isValid(fb)) return fb;
+            } catch {
+                // Ignore parse errors
+            }
+        }
+        return undefined;
+    }, [parsedDate, fallbackMonthDate]);
+
+    return (
+        <div className="space-y-1">
+            <span className="text-[11px] font-medium text-muted-foreground">{label}</span>
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    <button
+                        id={id}
+                        type="button"
+                        className={cn(
+                            "flex w-full items-center justify-between rounded-xl border border-border/80 bg-background/90 px-3 py-2 text-xs font-medium transition-all hover:border-border focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary shadow-xs cursor-pointer text-left",
+                            !value ? "text-muted-foreground" : "text-foreground"
+                        )}
+                    >
+                        <span className="flex items-center gap-2 truncate">
+                            <RiCalendarLine className="size-3.5 shrink-0 text-primary" />
+                            <span>{parsedDate ? format(parsedDate, "dd MMM yyyy") : placeholder}</span>
+                        </span>
+                        <RiArrowDownSLine className="size-3.5 shrink-0 text-muted-foreground" />
+                    </button>
+                </PopoverTrigger>
+                <PopoverContent
+                    className="w-auto p-2 border border-border/80 bg-card/95 backdrop-blur-xl shadow-2xl rounded-2xl z-50"
+                    align="start"
+                >
+                    <Calendar
+                        mode="single"
+                        selected={parsedDate}
+                        defaultMonth={defaultMonth}
+                        onSelect={(date) => {
+                            if (date) {
+                                onChange(format(date, "yyyy-MM-dd"));
+                            } else {
+                                onChange("");
+                            }
+                            setOpen(false);
+                        }}
+                    />
+                    {value && (
+                        <div className="border-t border-border/60 p-2 pt-2 flex justify-between items-center text-xs">
+                            <span className="text-muted-foreground text-[11px]">
+                                Selected: {parsedDate ? format(parsedDate, "dd MMM yyyy") : ""}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onChange("");
+                                    setOpen(false);
+                                }}
+                                className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    )}
+                </PopoverContent>
+            </Popover>
+        </div>
+    );
+}
 
 export default function MoviesCatalogView({
     initialMovies,
     currentPage,
     totalPages,
     currentSort,
+    currentGenre = "0",
+    currentFromDate = "",
+    currentToDate = "",
     totalResults,
 }: MoviesCatalogViewProps) {
-    const [selectedGenreId, setSelectedGenreId] = useState<number>(0);
+    const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+
+    // Parse comma-separated genre IDs from props
+    const parsedGenreIds = useMemo<number[]>(() => {
+        if (!currentGenre || currentGenre === "0") return [];
+        return currentGenre
+            .split(",")
+            .map((s) => parseInt(s.trim(), 10))
+            .filter((n) => !isNaN(n) && n > 0);
+    }, [currentGenre]);
+
+    // Local form state
+    const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>(parsedGenreIds);
+    const [fromDate, setFromDate] = useState<string>(currentFromDate || "");
+    const [toDate, setToDate] = useState<string>(currentToDate || "");
+    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
     const [activeTrailerMovie, setActiveTrailerMovie] = useState<Movie | null>(null);
 
-    // Filter by genre locally
-    const filteredMovies = useMemo(() => {
-        if (!initialMovies) return [];
-        if (selectedGenreId === 0) return initialMovies;
-        return initialMovies.filter((movie) => movie.genre_ids?.includes(selectedGenreId));
-    }, [initialMovies, selectedGenreId]);
+    // Sync state with URL params
+    useEffect(() => {
+        setSelectedGenreIds(parsedGenreIds);
+        setFromDate(currentFromDate || "");
+        setToDate(currentToDate || "");
+    }, [parsedGenreIds, currentFromDate, currentToDate]);
 
-    // Build page pagination numbers
+    // Toggle multi-select genre
+    const toggleGenre = (genreId: number) => {
+        setSelectedGenreIds((prev) =>
+            prev.includes(genreId) ? prev.filter((id) => id !== genreId) : [...prev, genreId]
+        );
+    };
+
+    // Active filters evaluation
+    const isGenreActive = selectedGenreIds.length > 0;
+    const isDateActive = Boolean(fromDate || toDate);
+    const hasActiveFilters = isGenreActive || isDateActive;
+    const activeFiltersCount = selectedGenreIds.length + (fromDate ? 1 : 0) + (toDate ? 1 : 0);
+
+    // Format human readable date for chips
+    const formattedFromDate = useMemo(() => {
+        if (!currentFromDate) return "";
+        try {
+            const d = parseISO(currentFromDate);
+            return isValid(d) ? format(d, "dd MMM yyyy") : currentFromDate;
+        } catch {
+            return currentFromDate;
+        }
+    }, [currentFromDate]);
+
+    const formattedToDate = useMemo(() => {
+        if (!currentToDate) return "";
+        try {
+            const d = parseISO(currentToDate);
+            return isValid(d) ? format(d, "dd MMM yyyy") : currentToDate;
+        } catch {
+            return currentToDate;
+        }
+    }, [currentToDate]);
+
+    // URL builder
+    const buildUrl = (
+        page: number,
+        sort: string = currentSort,
+        genreIds: number[] = parsedGenreIds,
+        from: string = currentFromDate || "",
+        to: string = currentToDate || ""
+    ) => {
+        const params = new URLSearchParams();
+        if (page > 1) params.set("page", page.toString());
+        if (sort && sort !== "popular") params.set("sort", sort);
+        if (genreIds.length > 0) params.set("genre", genreIds.join(","));
+        if (from && from.trim() !== "") params.set("from", from.trim());
+        if (to && to.trim() !== "") params.set("to", to.trim());
+        const query = params.toString();
+        return query ? `/movies?${query}` : "/movies";
+    };
+
+    // Apply filters
+    const handleApplyFilters = (
+        newGenres = selectedGenreIds,
+        newFrom = fromDate,
+        newTo = toDate
+    ) => {
+        const targetUrl = buildUrl(1, currentSort, newGenres, newFrom, newTo);
+        startTransition(() => {
+            router.push(targetUrl);
+        });
+        setIsMobileFiltersOpen(false);
+    };
+
+    // Reset all filters
+    const handleResetAll = () => {
+        setSelectedGenreIds([]);
+        setFromDate("");
+        setToDate("");
+        const targetUrl = buildUrl(1, currentSort, [], "", "");
+        startTransition(() => {
+            router.push(targetUrl);
+        });
+        setIsMobileFiltersOpen(false);
+    };
+
+    // Remove single genre from active filters
+    const handleRemoveSingleGenre = (genreIdToRemove: number) => {
+        const nextGenres = parsedGenreIds.filter((id) => id !== genreIdToRemove);
+        setSelectedGenreIds(nextGenres);
+        const targetUrl = buildUrl(1, currentSort, nextGenres, currentFromDate, currentToDate);
+        startTransition(() => {
+            router.push(targetUrl);
+        });
+    };
+
+    const handleRemoveDate = () => {
+        setFromDate("");
+        setToDate("");
+        const targetUrl = buildUrl(1, currentSort, parsedGenreIds, "", "");
+        startTransition(() => {
+            router.push(targetUrl);
+        });
+    };
+
+    // Quick year presets
+    const handleQuickPreset = (year: number) => {
+        const from = `${year}-01-01`;
+        const to = `${year}-12-31`;
+        setFromDate(from);
+        setToDate(to);
+        handleApplyFilters(selectedGenreIds, from, to);
+    };
+
+    // Page numbers calculation
     const pageNumbers = useMemo(() => {
         const pages: (number | string)[] = [];
         const maxShown = 5;
@@ -90,16 +334,182 @@ export default function MoviesCatalogView({
         return pages;
     }, [currentPage, totalPages]);
 
-    const buildUrl = (page: number, sort: string = currentSort) => {
-        const params = new URLSearchParams();
-        if (page > 1) params.set("page", page.toString());
-        if (sort && sort !== "popular") params.set("sort", sort);
-        const query = params.toString();
-        return query ? `/movies?${query}` : "/movies";
-    };
+    // Reusable Filter Form Card
+    const renderFilterCardContent = (isMobile = false) => (
+        <div className="space-y-5">
+            {/* Header in sidebar */}
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                <div className="flex items-center gap-2 font-semibold text-foreground text-sm">
+                    <RiFilter3Line className="size-4 text-primary" />
+                    <span>Filter Movies</span>
+                    {hasActiveFilters && (
+                        <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                            {activeFiltersCount}
+                        </span>
+                    )}
+                </div>
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        onClick={handleResetAll}
+                        disabled={isPending}
+                        className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 cursor-pointer"
+                    >
+                        <RiRestartLine className="size-3" />
+                        <span>Reset</span>
+                    </button>
+                )}
+            </div>
+
+            {/* Filter 1: Genre Badges with Flex Wrap (Multi-select) */}
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-foreground tracking-wide">
+                        <RiFilmLine className="size-3.5 text-primary" />
+                        <span>Genres</span>
+                        {selectedGenreIds.length > 0 && (
+                            <span className="text-[11px] font-normal text-primary">
+                                ({selectedGenreIds.length} selected)
+                            </span>
+                        )}
+                    </label>
+                    {selectedGenreIds.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => setSelectedGenreIds([])}
+                            className="text-[11px] text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
+
+                {/* Badges container with flex wrap */}
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    {ALL_GENRES.map((g) => {
+                        const isSelected = selectedGenreIds.includes(g.id);
+                        return (
+                            <button
+                                key={g.id}
+                                type="button"
+                                onClick={() => toggleGenre(g.id)}
+                                className={cn(
+                                    "inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors cursor-pointer select-none",
+                                    isSelected
+                                        ? "border-primary bg-primary text-primary-foreground shadow-xs shadow-primary/25"
+                                        : "border-border/80 bg-background/80 text-muted-foreground hover:border-border hover:bg-muted/60 hover:text-foreground"
+                                )}
+                            >
+                                <span>{g.name}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Filter 2: Release Date Range using Shadcn Calendar */}
+            <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-foreground tracking-wide">
+                        <RiCalendarLine className="size-3.5 text-primary" />
+                        <span>Release Date (Calendar)</span>
+                    </label>
+                    {(fromDate || toDate) && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setFromDate("");
+                                setToDate("");
+                            }}
+                            className="text-[11px] text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                        >
+                            Clear dates
+                        </button>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-1">
+                    {/* From date with Shadcn Calendar */}
+                    <DatePickerField
+                        id={isMobile ? "mobile-date-from" : "desktop-date-from"}
+                        label="From (Dari)"
+                        value={fromDate}
+                        onChange={setFromDate}
+                        placeholder="Pick start date"
+                    />
+
+                    {/* To date with Shadcn Calendar */}
+                    <DatePickerField
+                        id={isMobile ? "mobile-date-to" : "desktop-date-to"}
+                        label="To (Sampai)"
+                        value={toDate}
+                        onChange={setToDate}
+                        fallbackMonthDate={fromDate}
+                        placeholder="Pick end date"
+                    />
+                </div>
+
+                {/* Quick Year Shortcuts */}
+                <div className="pt-1">
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground block mb-1.5">
+                        Quick Presets
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                        {[2025, 2024, 2023, 2022].map((year) => (
+                            <button
+                                key={year}
+                                type="button"
+                                onClick={() => handleQuickPreset(year)}
+                                className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
+                                    fromDate === `${year}-01-01` && toDate === `${year}-12-31`
+                                        ? "border-primary bg-primary/10 text-primary"
+                                        : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                }`}
+                            >
+                                {year}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-2 flex flex-col gap-2">
+                <button
+                    type="button"
+                    onClick={() => handleApplyFilters()}
+                    disabled={isPending}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-2.5 px-4 text-xs font-semibold text-primary-foreground shadow-xs shadow-primary/25 hover:bg-primary/90 active:scale-98 transition-all disabled:opacity-60 cursor-pointer"
+                >
+                    {isPending ? (
+                        <>
+                            <RiLoader4Line className="size-4 animate-spin" />
+                            <span>Applying...</span>
+                        </>
+                    ) : (
+                        <>
+                            <RiFilter3Line className="size-4" />
+                            <span>Apply Filter</span>
+                        </>
+                    )}
+                </button>
+
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        onClick={handleResetAll}
+                        disabled={isPending}
+                        className="w-full rounded-xl border border-border/80 bg-muted/40 py-2 px-4 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all text-center cursor-pointer"
+                    >
+                        Reset All Filters
+                    </button>
+                )}
+            </div>
+        </div>
+    );
 
     return (
-        <div className="relative mx-auto w-full max-w-6xl min-w-0 px-4 py-8 sm:py-12 sm:px-8">
+        <div className="relative mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
             {/* Breadcrumb navigation */}
             <nav className="mb-4 flex items-center gap-2 text-xs text-muted-foreground" aria-label="Breadcrumb">
                 <Link href="/" className="hover:text-foreground transition-colors">
@@ -109,7 +519,7 @@ export default function MoviesCatalogView({
                 <span className="font-medium text-foreground">Movies</span>
             </nav>
 
-            {/* Header: | All Movies */}
+            {/* Header: Title + Sort Selector */}
             <div className="border-b border-border/60 pb-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -120,11 +530,11 @@ export default function MoviesCatalogView({
                             </h1>
                         </div>
                         <p className="mt-1 text-xs sm:text-sm text-muted-foreground pl-3.5">
-                            Discover thousands of titles from TMDB, filter by genre, and watch official trailers
+                            Discover thousands of titles with genre and release date filters
                         </p>
                     </div>
 
-                    {/* Sort Selector with animated sliding indicator */}
+                    {/* Sort Selector with animated sliding spring indicator */}
                     <div className="relative inline-flex items-center rounded-full border border-border/80 bg-muted/60 p-1 backdrop-blur-xs self-start sm:self-auto">
                         {SORT_OPTIONS.map((opt) => {
                             const isActive = currentSort === opt.id;
@@ -132,7 +542,7 @@ export default function MoviesCatalogView({
                             return (
                                 <Link
                                     key={opt.id}
-                                    href={buildUrl(1, opt.id)}
+                                    href={buildUrl(1, opt.id, parsedGenreIds, currentFromDate, currentToDate)}
                                     className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
                                         isActive
                                             ? "text-primary-foreground"
@@ -157,189 +567,293 @@ export default function MoviesCatalogView({
                 </div>
             </div>
 
-            {/* Genre Filter Pills (Responsive scroll on mobile) */}
-            <div className="mt-6 flex w-full min-w-0 max-w-full items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 text-xs no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
-                <span className="shrink-0 flex items-center gap-1 text-muted-foreground font-medium mr-1 hidden sm:inline-flex">
-                    <RiFilter3Line className="size-3.5" />
-                    Genre:
-                </span>
-                {POPULAR_GENRES.map((g) => {
-                    const isSelected = selectedGenreId === g.id;
-                    return (
-                        <button
-                            key={g.id}
-                            type="button"
-                            onClick={() => setSelectedGenreId(g.id)}
-                            className={`shrink-0 rounded-lg sm:rounded-md px-3 py-1.5 text-xs transition-all active:scale-95 ${
-                                isSelected
-                                    ? "bg-primary text-primary-foreground font-semibold shadow-xs shadow-primary/20"
-                                    : "bg-card border border-border/70 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
-                            }`}
-                        >
-                            {g.name}
-                        </button>
-                    );
-                })}
-            </div>
-
-            {/* Summary & Active Filter notice */}
-            <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-                <p>
-                    Showing <span className="font-semibold text-foreground">{filteredMovies.length}</span> titles on Page{" "}
-                    <span className="font-semibold text-foreground">{currentPage}</span> of{" "}
-                    <span className="font-semibold text-foreground">{totalPages.toLocaleString()}</span>
-                </p>
-                {selectedGenreId !== 0 && (
+            {/* Mobile Filter Toggle Bar (Visible on mobile/tablet < lg) */}
+            <div className="lg:hidden mt-4">
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card/80 p-3 shadow-xs backdrop-blur-xs">
                     <button
                         type="button"
-                        onClick={() => setSelectedGenreId(0)}
-                        className="font-medium text-primary hover:underline underline-offset-4 transition"
+                        onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                        className="flex items-center gap-2 rounded-xl bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition-all active:scale-95 cursor-pointer"
                     >
-                        Reset Genre Filter
+                        <RiFilter3Line className="size-4" />
+                        <span>Filters</span>
+                        {hasActiveFilters && (
+                            <span className="flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                                {activeFiltersCount}
+                            </span>
+                        )}
+                        <RiArrowDownSLine
+                            className={`size-4 transition-transform duration-200 ${
+                                isMobileFiltersOpen ? "rotate-180" : ""
+                            }`}
+                        />
                     </button>
-                )}
+
+                    {/* Quick active summary */}
+                    <div className="flex items-center gap-2 overflow-hidden text-xs text-muted-foreground">
+                        {hasActiveFilters ? (
+                            <button
+                                type="button"
+                                onClick={handleResetAll}
+                                className="text-xs text-primary font-medium hover:underline cursor-pointer"
+                            >
+                                Reset Filters
+                            </button>
+                        ) : (
+                            <span className="truncate text-[11px]">Select genres & dates</span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Collapsible Mobile Filter Drawer */}
+                <AnimatePresence>
+                    {isMobileFiltersOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.25, ease: "easeInOut" }}
+                            className="overflow-hidden"
+                        >
+                            <div className="mt-3 rounded-2xl border border-border/80 bg-card p-4 shadow-md backdrop-blur-md">
+                                {renderFilterCardContent(true)}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
-            {/* Movie Grid / Empty State with smooth fade-and-slide transition */}
-            <AnimatePresence mode="wait">
-                {filteredMovies.length > 0 ? (
-                    <motion.div
-                        key={`${currentSort}-${selectedGenreId}-${currentPage}`}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        transition={{ duration: 0.25, ease: "easeOut" }}
-                        className="w-full"
-                    >
-                        <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-full min-w-0">
-                            {filteredMovies.map((movie) => (
-                                <MovieCard
-                                    key={movie.id}
-                                    movie={movie}
-                                    onPlayTrailer={(m) => setActiveTrailerMovie(m)}
-                                />
-                            ))}
-                        </div>
-                    </motion.div>
-                ) : (
-                    <motion.div
-                        key="empty-state"
-                        initial={{ opacity: 0, scale: 0.98 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.98 }}
-                        transition={{ duration: 0.2 }}
-                        className="mt-16 flex flex-col items-center justify-center text-center"
-                    >
-                        <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                            <RiFilmLine className="size-6" />
-                        </div>
-                        <h3 className="mt-4 text-base font-semibold text-foreground">
-                            No movies found on this page
-                        </h3>
-                        <p className="mt-1 text-xs text-muted-foreground max-w-sm">
-                            There are no movies matching the selected genre on page {currentPage}.
-                        </p>
-                        <button
-                            type="button"
-                            onClick={() => setSelectedGenreId(0)}
-                            className="mt-4 rounded-full border border-border/80 bg-card px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted"
-                        >
-                            Show All on This Page
-                        </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Main Content Layout: Left Sidebar + Right Movie Grid */}
+            <div className="mt-6 sm:mt-8 flex flex-col lg:flex-row gap-8 items-start">
+                {/* LEFT SIDEBAR: Desktop Filter Panel */}
+                <aside className="hidden lg:block w-72 shrink-0 sticky top-24">
+                    <div className="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-xs backdrop-blur-md">
+                        {renderFilterCardContent(false)}
+                    </div>
+                </aside>
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-                <div className="mt-12 sm:mt-16 flex flex-col items-center justify-center gap-4 border-t border-border/60 pt-8">
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                        {/* Prev Button */}
-                        {currentPage > 1 ? (
-                            <Link
-                                href={buildUrl(currentPage - 1)}
-                                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card px-3 text-xs font-medium text-foreground transition-all hover:border-primary/50 hover:bg-muted hover:text-primary active:scale-95"
-                                aria-label="Previous page"
-                            >
-                                <FaChevronLeft className="size-3" />
-                                <span className="hidden sm:inline">Prev</span>
-                            </Link>
-                        ) : (
-                            <button
-                                type="button"
-                                disabled
-                                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/40 bg-muted/40 px-3 text-xs font-medium text-muted-foreground/50 cursor-not-allowed opacity-50"
-                                aria-label="Previous page (disabled)"
-                            >
-                                <FaChevronLeft className="size-3" />
-                                <span className="hidden sm:inline">Prev</span>
-                            </button>
-                        )}
+                {/* RIGHT CONTENT: Movie Grid, Active Filter Chips & Pagination */}
+                <section className="flex-1 min-w-0 w-full">
+                    {/* Active Filter Chips Bar */}
+                    {hasActiveFilters && (
+                        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-muted/30 p-2.5 text-xs">
+                            <span className="text-muted-foreground font-medium pl-1">Active:</span>
 
-                        {/* Page Number Pills */}
-                        <div className="flex items-center gap-1">
-                            {pageNumbers.map((p, idx) => {
-                                if (typeof p === "string") {
-                                    return (
-                                        <span
-                                            key={`ellipsis-${idx}`}
-                                            className="flex h-9 w-7 items-center justify-center text-xs text-muted-foreground"
-                                        >
-                                            ...
-                                        </span>
-                                    );
-                                }
-
-                                const isCurrent = p === currentPage;
-                                return isCurrent ? (
+                            {/* Genre Chips - Individual chip for each selected genre */}
+                            {parsedGenreIds.map((gId) => {
+                                const genreObj = ALL_GENRES.find((g) => g.id === gId);
+                                const label = genreObj ? genreObj.name : `Genre #${gId}`;
+                                return (
                                     <span
-                                        key={p}
-                                        className="flex h-9 min-w-9 items-center justify-center rounded-lg bg-primary px-3 text-xs font-bold text-primary-foreground shadow-sm shadow-primary/20"
-                                        aria-current="page"
+                                        key={`active-chip-${gId}`}
+                                        className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
                                     >
-                                        {p}
+                                        <RiFilmLine className="size-3" />
+                                        <span>{label}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleRemoveSingleGenre(gId)}
+                                            className="ml-0.5 rounded-full p-0.5 hover:bg-primary/20 transition-colors cursor-pointer"
+                                            aria-label={`Remove ${label} filter`}
+                                        >
+                                            <RiCloseLine className="size-3.5" />
+                                        </button>
                                     </span>
-                                ) : (
-                                    <Link
-                                        key={p}
-                                        href={buildUrl(p)}
-                                        className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-border/80 bg-card px-3 text-xs font-medium text-muted-foreground transition-all hover:border-primary/50 hover:bg-muted hover:text-foreground active:scale-95"
-                                    >
-                                        {p}
-                                    </Link>
                                 );
                             })}
-                        </div>
 
-                        {/* Next Button */}
-                        {currentPage < totalPages ? (
-                            <Link
-                                href={buildUrl(currentPage + 1)}
-                                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card px-3 text-xs font-medium text-foreground transition-all hover:border-primary/50 hover:bg-muted hover:text-primary active:scale-95"
-                                aria-label="Next page"
-                            >
-                                <span className="hidden sm:inline">Next</span>
-                                <FaChevronRight className="size-3" />
-                            </Link>
-                        ) : (
+                            {/* Date Chip */}
+                            {isDateActive && (
+                                <span className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                                    <RiCalendarLine className="size-3" />
+                                    <span>
+                                        {formattedFromDate && formattedToDate
+                                            ? `${formattedFromDate} → ${formattedToDate}`
+                                            : formattedFromDate
+                                              ? `From ${formattedFromDate}`
+                                              : `Until ${formattedToDate}`}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveDate}
+                                        className="ml-0.5 rounded-full p-0.5 hover:bg-primary/20 transition-colors cursor-pointer"
+                                        aria-label="Remove date filter"
+                                    >
+                                        <RiCloseLine className="size-3.5" />
+                                    </button>
+                                </span>
+                            )}
+
                             <button
                                 type="button"
-                                disabled
-                                className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/40 bg-muted/40 px-3 text-xs font-medium text-muted-foreground/50 cursor-not-allowed opacity-50"
-                                aria-label="Next page (disabled)"
+                                onClick={handleResetAll}
+                                className="ml-auto text-xs text-muted-foreground hover:text-primary transition-colors pr-1 cursor-pointer"
                             >
-                                <span className="hidden sm:inline">Next</span>
-                                <FaChevronRight className="size-3" />
+                                Clear all
                             </button>
+                        </div>
+                    )}
+
+                    {/* Results Count & Current Page Summary */}
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
+                        <p>
+                            Showing <span className="font-semibold text-foreground">{initialMovies.length}</span> titles
+                            on Page <span className="font-semibold text-foreground">{currentPage}</span> of{" "}
+                            <span className="font-semibold text-foreground">{totalPages.toLocaleString()}</span>
+                        </p>
+                        {isPending && (
+                            <div className="flex items-center gap-1.5 text-primary">
+                                <RiLoader4Line className="size-3.5 animate-spin" />
+                                <span>Updating...</span>
+                            </div>
                         )}
                     </div>
 
-                    <p className="text-xs text-muted-foreground">
-                        Page <span className="font-medium text-foreground">{currentPage}</span> of{" "}
-                        <span className="font-medium text-foreground">{totalPages.toLocaleString()}</span>
-                    </p>
-                </div>
-            )}
+                    {/* Movie Grid / Empty State */}
+                    <div className={`transition-opacity duration-200 ${isPending ? "opacity-60" : "opacity-100"}`}>
+                        <AnimatePresence mode="wait">
+                            {initialMovies.length > 0 ? (
+                                <motion.div
+                                    key={`${currentSort}-${currentGenre}-${currentFromDate}-${currentToDate}-${currentPage}`}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.25, ease: "easeOut" }}
+                                    className="w-full"
+                                >
+                                    <div className="grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full min-w-0">
+                                        {initialMovies.map((movie) => (
+                                            <MovieCard
+                                                key={movie.id}
+                                                movie={movie}
+                                                onPlayTrailer={(m) => setActiveTrailerMovie(m)}
+                                            />
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="empty-state"
+                                    initial={{ opacity: 0, scale: 0.98 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.98 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="mt-12 flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 p-12 text-center"
+                                >
+                                    <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                                        <RiFilmLine className="size-6" />
+                                    </div>
+                                    <h3 className="mt-4 text-base font-semibold text-foreground">
+                                        No movies found
+                                    </h3>
+                                    <p className="mt-1 text-xs text-muted-foreground max-w-sm">
+                                        We couldn&apos;t find any movies matching your selected genres or release date
+                                        criteria. Try adjusting your filters.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={handleResetAll}
+                                        className="mt-5 rounded-full border border-border/80 bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90 shadow-xs cursor-pointer"
+                                    >
+                                        Reset All Filters
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="mt-12 sm:mt-16 flex flex-col items-center justify-center gap-4 border-t border-border/60 pt-8">
+                            <div className="flex items-center gap-1.5 sm:gap-2">
+                                {/* Prev Button */}
+                                {currentPage > 1 ? (
+                                    <Link
+                                        href={buildUrl(currentPage - 1, currentSort, parsedGenreIds, currentFromDate, currentToDate)}
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card px-3 text-xs font-medium text-foreground transition-all hover:border-primary/50 hover:bg-muted hover:text-primary active:scale-95"
+                                        aria-label="Previous page"
+                                    >
+                                        <FaChevronLeft className="size-3" />
+                                        <span className="hidden sm:inline">Prev</span>
+                                    </Link>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        disabled
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/40 bg-muted/40 px-3 text-xs font-medium text-muted-foreground/50 cursor-not-allowed opacity-50"
+                                        aria-label="Previous page (disabled)"
+                                    >
+                                        <FaChevronLeft className="size-3" />
+                                        <span className="hidden sm:inline">Prev</span>
+                                    </button>
+                                )}
+
+                                {/* Page Number Pills */}
+                                <div className="flex items-center gap-1">
+                                    {pageNumbers.map((p, idx) => {
+                                        if (typeof p === "string") {
+                                            return (
+                                                <span
+                                                    key={`ellipsis-${idx}`}
+                                                    className="flex h-9 w-7 items-center justify-center text-xs text-muted-foreground"
+                                                >
+                                                    ...
+                                                </span>
+                                            );
+                                        }
+
+                                        const isCurrent = p === currentPage;
+                                        return isCurrent ? (
+                                            <span
+                                                key={p}
+                                                className="flex h-9 min-w-9 items-center justify-center rounded-lg bg-primary px-3 text-xs font-bold text-primary-foreground shadow-sm shadow-primary/20"
+                                                aria-current="page"
+                                            >
+                                                {p}
+                                            </span>
+                                        ) : (
+                                            <Link
+                                                key={p}
+                                                href={buildUrl(p, currentSort, parsedGenreIds, currentFromDate, currentToDate)}
+                                                className="flex h-9 min-w-9 items-center justify-center rounded-lg border border-border/80 bg-card px-3 text-xs font-medium text-muted-foreground transition-all hover:border-primary/50 hover:bg-muted hover:text-foreground active:scale-95"
+                                            >
+                                                {p}
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Next Button */}
+                                {currentPage < totalPages ? (
+                                    <Link
+                                        href={buildUrl(currentPage + 1, currentSort, parsedGenreIds, currentFromDate, currentToDate)}
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/80 bg-card px-3 text-xs font-medium text-foreground transition-all hover:border-primary/50 hover:bg-muted hover:text-primary active:scale-95"
+                                        aria-label="Next page"
+                                    >
+                                        <span className="hidden sm:inline">Next</span>
+                                        <FaChevronRight className="size-3" />
+                                    </Link>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        disabled
+                                        className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/40 bg-muted/40 px-3 text-xs font-medium text-muted-foreground/50 cursor-not-allowed opacity-50"
+                                        aria-label="Next page (disabled)"
+                                    >
+                                        <span className="hidden sm:inline">Next</span>
+                                        <FaChevronRight className="size-3" />
+                                    </button>
+                                )}
+                            </div>
+
+                            <p className="text-xs text-muted-foreground">
+                                Page <span className="font-medium text-foreground">{currentPage}</span> of{" "}
+                                <span className="font-medium text-foreground">{totalPages.toLocaleString()}</span>
+                            </p>
+                        </div>
+                    )}
+                </section>
+            </div>
 
             {/* Trailer Modal */}
             <TrailerModal

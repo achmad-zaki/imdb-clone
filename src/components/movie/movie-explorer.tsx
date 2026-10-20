@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Movie } from "@/types/movie";
 import MovieCard from "@/components/movie/movie-card";
 import TrailerModal from "@/components/movie/trailer-modal";
 import { RiFilmLine } from "@remixicon/react";
+import { FaArrowRight } from "react-icons/fa";
 
 const POPULAR_GENRES = [
     { id: 0, name: "All Genres" },
@@ -43,7 +45,7 @@ export default function MovieExplorer({
 
     return (
         <section id="popular-movies" className="relative mx-auto w-full max-w-6xl min-w-0 px-4 py-8 sm:py-12 sm:px-8">
-            {/* Header: | Movies (Styled like Popular People) */}
+            {/* Header: | Movies */}
             <div className="border-b border-border/60 pb-4">
                 <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2.5">
@@ -54,18 +56,22 @@ export default function MovieExplorer({
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                        <span className="rounded-full bg-muted/80 border border-border/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                            {filteredMovies.length} movies
-                        </span>
                         {selectedGenreId !== 0 && (
                              <button
                                  type="button"
                                  onClick={() => setSelectedGenreId(0)}
-                                 className="text-xs font-medium text-primary hover:underline underline-offset-4 transition"
+                                 className="text-xs font-medium text-primary hover:underline underline-offset-4 transition mr-1"
                              >
                                  Reset filter
                              </button>
                         )}
+                        <Link
+                            href="/movies"
+                            className="group inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all duration-200 hover:border-primary/50 hover:bg-muted hover:text-primary active:scale-95 shadow-xs"
+                        >
+                            <span>View All</span>
+                            <FaArrowRight className="size-2.5 transition-transform group-hover:translate-x-0.5" />
+                        </Link>
                     </div>
                 </div>
 
@@ -98,15 +104,28 @@ export default function MovieExplorer({
 
             {/* Movie Grid / Empty State */}
             {filteredMovies.length > 0 ? (
-                <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-full min-w-0">
-                    {filteredMovies.map((movie) => (
-                        <MovieCard
-                            key={movie.id}
-                            movie={movie}
-                            onPlayTrailer={(m) => setActiveTrailerMovie(m)}
-                        />
-                    ))}
-                </div>
+                <>
+                    <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-full min-w-0">
+                        {filteredMovies.map((movie) => (
+                            <MovieCard
+                                key={movie.id}
+                                movie={movie}
+                                onPlayTrailer={(m) => setActiveTrailerMovie(m)}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Bottom CTA to View All Movies */}
+                    <div className="mt-10 sm:mt-12 flex justify-center">
+                        <Link
+                            href="/movies"
+                            className="group inline-flex items-center gap-2 rounded-full border border-border/80 bg-card px-6 py-3 text-xs sm:text-sm font-semibold text-foreground shadow-xs transition-all duration-200 hover:border-primary/50 hover:bg-muted hover:text-primary hover:shadow-lg hover:shadow-primary/5 active:scale-95"
+                        >
+                            <span>Explore All Movies</span>
+                            <FaArrowRight className="size-3 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                    </div>
+                </>
             ) : (
                 <div className="mt-16 flex flex-col items-center justify-center text-center">
                     <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">

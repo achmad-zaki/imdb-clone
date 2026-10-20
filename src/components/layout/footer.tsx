@@ -35,9 +35,9 @@ export default function Footer() {
                     <Link href="/" className="hover:text-foreground transition-colors">
                         Home
                     </Link>
-                    <a href="#popular-movies" className="hover:text-foreground transition-colors">
+                    <Link href="/movies" className="hover:text-foreground transition-colors">
                         Movies
-                    </a>
+                    </Link>
                 </div>
             </div>
         </footer>

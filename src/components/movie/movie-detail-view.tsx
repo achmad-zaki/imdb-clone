@@ -6,15 +6,13 @@ import { formatDate } from "@/lib/date";
 import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
 import { Movie, MovieDetail } from "@/types/movie";
 import {
-    RiArrowLeftLine,
     RiCalendarLine,
     RiFilmLine,
     RiPlayFill,
     RiStarFill,
-    RiTimeLine,
+    RiTimeLine
 } from "@remixicon/react";
 import Image from "next/image";
-import Link from "next/link";
 import { useState } from "react";
 
 type MovieDetailViewProps = {
@@ -49,17 +47,6 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
-
-                {/* Back navigation */}
-                <div className="relative z-10 mx-auto max-w-6xl px-4 pt-6 sm:px-8">
-                    <Link
-                        href="/"
-                        className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur-md transition hover:bg-muted"
-                    >
-                        <RiArrowLeftLine className="size-4" />
-                        <span>Back to Home</span>
-                    </Link>
-                </div>
 
                 {/* Main Movie Info Layout */}
                 <div className="relative z-10 mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-8">

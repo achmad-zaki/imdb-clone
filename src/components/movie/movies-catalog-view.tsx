@@ -29,7 +29,7 @@ import { format, isValid, parseISO } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
 const ALL_GENRES = [
@@ -202,13 +202,26 @@ export default function MoviesCatalogView({
     const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
     const [activeTrailerMovie, setActiveTrailerMovie] = useState<Movie | null>(null);
 
-    // Sync state with URL params
-    useEffect(() => {
+    // Track previous props to sync state during render (React-recommended pattern, no useEffect needed)
+    const [prevProps, setPrevProps] = useState({
+        currentSort,
+        currentGenre,
+        currentFromDate,
+        currentToDate,
+    });
+
+    if (
+        prevProps.currentSort !== currentSort ||
+        prevProps.currentGenre !== currentGenre ||
+        prevProps.currentFromDate !== currentFromDate ||
+        prevProps.currentToDate !== currentToDate
+    ) {
+        setPrevProps({ currentSort, currentGenre, currentFromDate, currentToDate });
         setSelectedSort(currentSort || "popular");
         setSelectedGenreIds(parsedGenreIds);
         setFromDate(currentFromDate || "");
         setToDate(currentToDate || "");
-    }, [currentSort, parsedGenreIds, currentFromDate, currentToDate]);
+    }
 
     // Format human readable date helper
     const formatDisplayDate = (dateStr: string) => {
@@ -738,6 +751,11 @@ export default function MoviesCatalogView({
                             Showing <span className="font-semibold text-foreground">{initialMovies.length}</span> titles
                             on Page <span className="font-semibold text-foreground">{currentPage}</span> of{" "}
                             <span className="font-semibold text-foreground">{totalPages.toLocaleString()}</span>
+                            {totalResults > 0 && (
+                                <span className="ml-1 text-muted-foreground">
+                                    ({totalResults.toLocaleString()} total)
+                                </span>
+                            )}
                         </p>
                         {isPending && (
                             <div className="flex items-center gap-1.5 text-primary">

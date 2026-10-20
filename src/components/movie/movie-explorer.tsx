@@ -172,7 +172,7 @@ export default function MovieExplorer({
                             </button>
                         )}
                         <Link
-                            href={mediaType === "movie" ? "/movies" : "/movies?type=tv"}
+                            href={mediaType === "movie" ? "/movies" : "/tv"}
                             className="group inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all duration-200 hover:border-primary/50 hover:bg-muted hover:text-primary active:scale-95 shadow-xs"
                         >
                             <span>View All</span>
@@ -243,7 +243,7 @@ export default function MovieExplorer({
                         {/* Bottom CTA to View All */}
                         <div className="mt-10 sm:mt-12 flex justify-center">
                             <Link
-                                href={mediaType === "movie" ? "/movies" : "/movies?type=tv"}
+                                href={mediaType === "movie" ? "/movies" : "/tv"}
                                 className="group inline-flex items-center gap-2 rounded-full border border-border/80 bg-card px-6 py-3 text-xs sm:text-sm font-semibold text-foreground shadow-xs transition-all duration-200 hover:border-primary/50 hover:bg-muted hover:text-primary hover:shadow-lg hover:shadow-primary/5 active:scale-95"
                             >
                                 <span>{mediaType === "movie" ? "Explore All Movies" : "Explore All TV Series"}</span>

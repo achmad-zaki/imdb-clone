@@ -270,6 +270,20 @@ export async function getPopularTVShows(page = 1, language = "en-US"): Promise<T
     });
 }
 
+export async function getTopRatedTVShows(page = 1, language = "en-US"): Promise<TVResponse> {
+    return tmdbFetch<TVResponse>("/tv/top_rated", {
+        language,
+        page: page.toString(),
+    });
+}
+
+export async function getOnTheAirTVShows(page = 1, language = "en-US"): Promise<TVResponse> {
+    return tmdbFetch<TVResponse>("/tv/on_the_air", {
+        language,
+        page: page.toString(),
+    });
+}
+
 export async function getTVDetails(tvId: number | string): Promise<TVDetail | null> {
     try {
         const tv = await tmdbFetch<TVDetail>(`/tv/${tvId}`, {

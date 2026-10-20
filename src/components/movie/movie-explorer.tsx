@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { Movie } from "@/types/movie";
 import MovieCard from "@/components/movie/movie-card";
 import TrailerModal from "@/components/movie/trailer-modal";
-import { RiFilmLine, RiFireLine } from "@remixicon/react";
+import { RiFilmLine } from "@remixicon/react";
 
 const POPULAR_GENRES = [
     { id: 0, name: "All Genres" },
@@ -42,42 +42,41 @@ export default function MovieExplorer({
     }, [initialMovies, selectedGenreId]);
 
     return (
-        <section id="popular-movies" className="relative mx-auto max-w-6xl px-4 py-12 sm:px-8">
-            {/* Section Header */}
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-5">
-                <div className="flex items-center gap-3">
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <RiFireLine className="size-5" />
-                    </div>
-                    <div>
+        <section id="popular-movies" className="relative mx-auto w-full max-w-6xl min-w-0 px-4 py-8 sm:py-12 sm:px-8">
+            {/* Header: | Movies (Styled like Popular People) */}
+            <div className="border-b border-border/60 pb-4">
+                <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2.5">
+                        <div className="h-6 w-1 rounded-full bg-primary" />
                         <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-                            Popular Movies
+                            Movies
                         </h2>
-                        <p className="text-xs text-muted-foreground">
-                            Top trending and most-watched movies right now
-                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                        <span className="rounded-full bg-muted/80 border border-border/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                            {filteredMovies.length} movies
+                        </span>
+                        {selectedGenreId !== 0 && (
+                             <button
+                                 type="button"
+                                 onClick={() => setSelectedGenreId(0)}
+                                 className="text-xs font-medium text-primary hover:underline underline-offset-4 transition"
+                             >
+                                 Reset filter
+                             </button>
+                        )}
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                        {filteredMovies.length} movies
-                    </span>
-                    {selectedGenreId !== 0 && (
-                        <button
-                            type="button"
-                            onClick={() => setSelectedGenreId(0)}
-                            className="text-xs font-medium text-primary hover:underline underline-offset-4 transition"
-                        >
-                            Reset filter
-                        </button>
-                    )}
-                </div>
+                <p className="mt-1 text-xs text-muted-foreground pl-3.5">
+                    Explore popular and top-rated movies across genres
+                </p>
             </div>
 
-            {/* Genre Filter Pills */}
-            <div className="mt-5 flex items-center gap-2 overflow-x-auto pb-2 text-xs no-scrollbar">
-                <span className="shrink-0 text-muted-foreground font-medium mr-1">Genre:</span>
+            {/* Genre Filter Pills (Responsive scroll on mobile) */}
+            <div className="mt-5 flex w-full min-w-0 max-w-full items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 text-xs no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+                <span className="shrink-0 text-muted-foreground font-medium mr-1 hidden sm:inline">Genre:</span>
                 {POPULAR_GENRES.map((g) => {
                     const isSelected = selectedGenreId === g.id;
                     return (
@@ -85,10 +84,10 @@ export default function MovieExplorer({
                             key={g.id}
                             type="button"
                             onClick={() => setSelectedGenreId(g.id)}
-                            className={`shrink-0 rounded-md px-3 py-1.5 transition-all ${
+                            className={`shrink-0 rounded-lg sm:rounded-md px-3 py-1.5 text-xs transition-all active:scale-95 ${
                                 isSelected
-                                    ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                                    : "bg-muted/50 border border-border/60 text-muted-foreground hover:border-border hover:text-foreground"
+                                    ? "bg-primary text-primary-foreground font-semibold shadow-xs shadow-primary/20"
+                                    : "bg-card border border-border/70 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
                             }`}
                         >
                             {g.name}
@@ -99,7 +98,7 @@ export default function MovieExplorer({
 
             {/* Movie Grid / Empty State */}
             {filteredMovies.length > 0 ? (
-                <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+                <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-full min-w-0">
                     {filteredMovies.map((movie) => (
                         <MovieCard
                             key={movie.id}

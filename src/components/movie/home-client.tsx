@@ -21,7 +21,7 @@ export default function HomeClient({
     const [activeTrailerMovie, setActiveTrailerMovie] = useState<Movie | null>(null);
 
     return (
-        <div className="flex min-h-screen flex-col bg-background text-foreground transition-colors duration-300">
+        <div className="flex min-h-screen flex-col w-full min-w-0 max-w-full bg-background text-foreground transition-colors duration-300">
             {/* Minimalist Hero Spotlight */}
             <HeroSpotlight
                 movies={trendingMovies.length > 0 ? trendingMovies : popularMovies}

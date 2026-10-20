@@ -15,7 +15,7 @@ export default function PageTemplate({
                 duration: 0.3,
                 ease: [0.22, 1, 0.36, 1],
             }}
-            className="flex-1 w-full flex flex-col"
+            className="flex-1 w-full min-w-0 max-w-full flex flex-col"
         >
             {children}
         </motion.div>

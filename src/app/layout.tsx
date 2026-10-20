@@ -38,7 +38,7 @@ export default function RootLayout({
       className={cn("h-full antialiased", inter.variable, geistMono.variable)}
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col overflow-x-hidden">
         <NuqsAdapter>
           <ThemeProvider
             attribute="class"
@@ -48,7 +48,7 @@ export default function RootLayout({
           >
             <NavigationProgress />
             <Navbar />
-            <main className="flex-1 flex flex-col">
+            <main className="flex-1 flex flex-col w-full min-w-0 max-w-full">
               {children}
             </main>
             <Footer />

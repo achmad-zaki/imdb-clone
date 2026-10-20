@@ -30,7 +30,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
         .slice(0, 3);
 
     return (
-        <section className="relative min-h-[500px] w-full overflow-hidden bg-background sm:min-h-[580px] lg:min-h-[640px] transition-colors duration-300">
+        <section className="relative min-h-[500px] w-full max-w-full min-w-0 overflow-hidden bg-background sm:min-h-[580px] lg:min-h-[640px] transition-colors duration-300">
             {/* Backdrop Image with Multi-directional Gradient Masks */}
             <div className="absolute inset-0 z-0">
                 <Image
@@ -50,7 +50,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
             </div>
 
             {/* Content Container */}
-            <div className="relative z-10 mx-auto flex h-full min-h-[500px] max-w-6xl flex-col justify-end px-4 pb-12 pt-28 sm:min-h-[580px] sm:px-8 sm:pb-16 lg:min-h-[640px]">
+            <div className="relative z-10 mx-auto flex h-full min-h-[500px] w-full max-w-6xl min-w-0 flex-col justify-end px-4 pb-12 pt-28 sm:min-h-[580px] sm:px-8 sm:pb-16 lg:min-h-[640px]">
                 <div className="max-w-2xl">
                     {/* Badge */}
                     <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md shadow-xs">
@@ -121,9 +121,9 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                 </div>
 
                 {/* Thumbnail Switcher for Featured Movies */}
-                <div className="mt-8 flex items-center justify-between gap-4 border-t border-border/60 pt-4 sm:mt-12">
-                    <span className="text-xs font-medium text-muted-foreground">Featured Spotlight:</span>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4 border-t border-border/60 pt-4 sm:mt-12 w-full min-w-0">
+                    <span className="text-xs font-medium text-muted-foreground shrink-0">Featured Spotlight:</span>
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar min-w-0 w-full flex-1 -mx-4 px-4 sm:mx-0 sm:px-0">
                         {featured.map((movie, idx) => {
                             const isSelected = idx === activeIndex;
                             return (

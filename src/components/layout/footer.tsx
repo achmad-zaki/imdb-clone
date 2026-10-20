@@ -36,7 +36,7 @@ export default function Footer() {
                         Home
                     </Link>
                     <a href="#popular-movies" className="hover:text-foreground transition-colors">
-                        Popular Movies
+                        Movies
                     </a>
                 </div>
             </div>

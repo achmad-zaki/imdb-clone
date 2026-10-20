@@ -20,7 +20,7 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
     const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "—";
 
     return (
-        <div className="group relative flex flex-col">
+        <div className="group relative flex flex-col min-w-0 w-full">
             {/* Poster Card Container */}
             <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-border/70 bg-muted shadow-xs transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5">
                 <Link

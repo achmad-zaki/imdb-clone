@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Movie } from "@/types/movie";
 import MovieCard from "@/components/movie/movie-card";
 import TrailerModal from "@/components/movie/trailer-modal";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, isValid, parseISO } from "date-fns";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Movie } from "@/types/movie";
 import {
     RiArrowDownSLine,
+    RiArrowUpDownLine,
     RiCalendarLine,
     RiCloseLine,
     RiFilmLine,
@@ -21,8 +25,12 @@ import {
     RiRestartLine,
     RiStarLine,
 } from "@remixicon/react";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { format, isValid, parseISO } from "date-fns";
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
 
 const ALL_GENRES = [
     { id: 28, name: "Action" },
@@ -187,6 +195,7 @@ export default function MoviesCatalogView({
     }, [currentGenre]);
 
     // Local form state
+    const [selectedSort, setSelectedSort] = useState<string>(currentSort || "popular");
     const [selectedGenreIds, setSelectedGenreIds] = useState<number[]>(parsedGenreIds);
     const [fromDate, setFromDate] = useState<string>(currentFromDate || "");
     const [toDate, setToDate] = useState<string>(currentToDate || "");
@@ -195,10 +204,11 @@ export default function MoviesCatalogView({
 
     // Sync state with URL params
     useEffect(() => {
+        setSelectedSort(currentSort || "popular");
         setSelectedGenreIds(parsedGenreIds);
         setFromDate(currentFromDate || "");
         setToDate(currentToDate || "");
-    }, [parsedGenreIds, currentFromDate, currentToDate]);
+    }, [currentSort, parsedGenreIds, currentFromDate, currentToDate]);
 
     // Toggle multi-select genre
     const toggleGenre = (genreId: number) => {
@@ -208,10 +218,12 @@ export default function MoviesCatalogView({
     };
 
     // Active filters evaluation
+    const isSortActive = (currentSort || "popular") !== "popular";
     const isGenreActive = selectedGenreIds.length > 0;
     const isDateActive = Boolean(fromDate || toDate);
-    const hasActiveFilters = isGenreActive || isDateActive;
-    const activeFiltersCount = selectedGenreIds.length + (fromDate ? 1 : 0) + (toDate ? 1 : 0);
+    const hasActiveFilters = isSortActive || isGenreActive || isDateActive;
+    const activeFiltersCount =
+        (isSortActive ? 1 : 0) + selectedGenreIds.length + (fromDate ? 1 : 0) + (toDate ? 1 : 0);
 
     // Format human readable date for chips
     const formattedFromDate = useMemo(() => {
@@ -252,13 +264,31 @@ export default function MoviesCatalogView({
         return query ? `/movies?${query}` : "/movies";
     };
 
+    // Handle sort change from Shadcn Select
+    const handleSortChange = (newSort: string) => {
+        setSelectedSort(newSort);
+        const targetUrl = buildUrl(1, newSort, selectedGenreIds, fromDate, toDate);
+        startTransition(() => {
+            router.push(targetUrl);
+        });
+    };
+
+    const handleResetSort = () => {
+        setSelectedSort("popular");
+        const targetUrl = buildUrl(1, "popular", parsedGenreIds, currentFromDate, currentToDate);
+        startTransition(() => {
+            router.push(targetUrl);
+        });
+    };
+
     // Apply filters
     const handleApplyFilters = (
         newGenres = selectedGenreIds,
         newFrom = fromDate,
-        newTo = toDate
+        newTo = toDate,
+        newSort = selectedSort
     ) => {
-        const targetUrl = buildUrl(1, currentSort, newGenres, newFrom, newTo);
+        const targetUrl = buildUrl(1, newSort, newGenres, newFrom, newTo);
         startTransition(() => {
             router.push(targetUrl);
         });
@@ -270,7 +300,8 @@ export default function MoviesCatalogView({
         setSelectedGenreIds([]);
         setFromDate("");
         setToDate("");
-        const targetUrl = buildUrl(1, currentSort, [], "", "");
+        setSelectedSort("popular");
+        const targetUrl = buildUrl(1, "popular", [], "", "");
         startTransition(() => {
             router.push(targetUrl);
         });
@@ -361,7 +392,49 @@ export default function MoviesCatalogView({
                 )}
             </div>
 
-            {/* Filter 1: Genre Badges with Flex Wrap (Multi-select) */}
+            {/* Filter 1: Sort By (Popular, Top Rated, Upcoming) using Shadcn Select */}
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-foreground tracking-wide">
+                        <RiArrowUpDownLine className="size-3.5 text-primary" />
+                        <span>Sort By</span>
+                    </label>
+                    {isSortActive && (
+                        <button
+                            type="button"
+                            onClick={handleResetSort}
+                            className="text-[11px] text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                        >
+                            Reset
+                        </button>
+                    )}
+                </div>
+
+                <Select value={selectedSort} onValueChange={handleSortChange}>
+                    <SelectTrigger className="w-full rounded-xl border border-border/80 bg-background/90 px-3 py-2 text-xs font-medium hover:border-border focus:border-primary focus:ring-1 focus:ring-primary shadow-xs cursor-pointer">
+                        <SelectValue placeholder="Sort movies" />
+                    </SelectTrigger>
+                    <SelectContent position="popper" className="p-1">
+                        {SORT_OPTIONS.map((opt) => {
+                            const Icon = opt.icon;
+                            return (
+                                <SelectItem
+                                    key={opt.id}
+                                    value={opt.id}
+                                    className="cursor-pointer rounded-lg py-2 text-xs font-medium focus:bg-accent focus:text-accent-foreground"
+                                >
+                                    <span className="flex items-center gap-2">
+                                        <Icon className="size-3.5 text-primary shrink-0" />
+                                        <span>{opt.label}</span>
+                                    </span>
+                                </SelectItem>
+                            );
+                        })}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {/* Filter 2: Genre Badges with Flex Wrap (Multi-select) */}
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
                     <label className="flex items-center gap-1.5 text-xs font-semibold text-foreground tracking-wide">
@@ -460,11 +533,10 @@ export default function MoviesCatalogView({
                                 key={year}
                                 type="button"
                                 onClick={() => handleQuickPreset(year)}
-                                className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${
-                                    fromDate === `${year}-01-01` && toDate === `${year}-12-31`
-                                        ? "border-primary bg-primary/10 text-primary"
-                                        : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground"
-                                }`}
+                                className={`rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors cursor-pointer ${fromDate === `${year}-01-01` && toDate === `${year}-12-31`
+                                    ? "border-primary bg-primary/10 text-primary"
+                                    : "border-border/60 bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    }`}
                             >
                                 {year}
                             </button>
@@ -519,57 +591,22 @@ export default function MoviesCatalogView({
                 <span className="font-medium text-foreground">Movies</span>
             </nav>
 
-            {/* Header: Title + Sort Selector */}
+            {/* Header: Title */}
             <div className="border-b border-border/60 pb-6">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <div className="flex items-center gap-2.5">
-                            <div className="h-6 w-1 rounded-full bg-primary" />
-                            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                                Explore Movies
-                            </h1>
-                        </div>
-                        <p className="mt-1 text-xs sm:text-sm text-muted-foreground pl-3.5">
-                            Discover thousands of titles with genre and release date filters
-                        </p>
-                    </div>
-
-                    {/* Sort Selector with animated sliding spring indicator */}
-                    <div className="relative inline-flex items-center rounded-full border border-border/80 bg-muted/60 p-1 backdrop-blur-xs self-start sm:self-auto">
-                        {SORT_OPTIONS.map((opt) => {
-                            const isActive = currentSort === opt.id;
-                            const Icon = opt.icon;
-                            return (
-                                <Link
-                                    key={opt.id}
-                                    href={buildUrl(1, opt.id, parsedGenreIds, currentFromDate, currentToDate)}
-                                    className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
-                                        isActive
-                                            ? "text-primary-foreground"
-                                            : "text-muted-foreground hover:text-foreground"
-                                    }`}
-                                >
-                                    {isActive && (
-                                        <motion.span
-                                            layoutId="activeCatalogSortTab"
-                                            className="absolute inset-0 rounded-full bg-primary shadow-xs shadow-primary/20"
-                                            transition={{ type: "spring", stiffness: 450, damping: 32 }}
-                                        />
-                                    )}
-                                    <span className="relative z-10 flex items-center gap-1.5">
-                                        <Icon className="size-3.5" />
-                                        <span>{opt.label}</span>
-                                    </span>
-                                </Link>
-                            );
-                        })}
-                    </div>
+                <div className="flex items-center gap-2.5">
+                    <div className="h-6 w-1 rounded-full bg-primary" />
+                    <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+                        Explore Movies
+                    </h1>
                 </div>
+                <p className="mt-1 text-xs sm:text-sm text-muted-foreground pl-3.5">
+                    Discover thousands of titles with genre, release date, and sorting filters
+                </p>
             </div>
 
             {/* Mobile Filter Toggle Bar (Visible on mobile/tablet < lg) */}
             <div className="lg:hidden mt-4">
-                <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card/80 p-3 shadow-xs backdrop-blur-xs">
+                <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card p-3 backdrop-blur-xs">
                     <button
                         type="button"
                         onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
@@ -583,9 +620,8 @@ export default function MoviesCatalogView({
                             </span>
                         )}
                         <RiArrowDownSLine
-                            className={`size-4 transition-transform duration-200 ${
-                                isMobileFiltersOpen ? "rotate-180" : ""
-                            }`}
+                            className={`size-4 transition-transform duration-200 ${isMobileFiltersOpen ? "rotate-180" : ""
+                                }`}
                         />
                     </button>
 
@@ -627,7 +663,7 @@ export default function MoviesCatalogView({
             <div className="mt-6 sm:mt-8 flex flex-col lg:flex-row gap-8 items-start">
                 {/* LEFT SIDEBAR: Desktop Filter Panel */}
                 <aside className="hidden lg:block w-72 shrink-0 sticky top-24">
-                    <div className="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-xs backdrop-blur-md">
+                    <div className="rounded-2xl border border-border/80 bg-card p-5 backdrop-blur-md">
                         {renderFilterCardContent(false)}
                     </div>
                 </aside>
@@ -638,6 +674,22 @@ export default function MoviesCatalogView({
                     {hasActiveFilters && (
                         <div className="mb-4 flex flex-wrap items-center gap-2 rounded-xl border border-border/60 bg-muted/30 p-2.5 text-xs">
                             <span className="text-muted-foreground font-medium pl-1">Active:</span>
+
+                            {/* Sort Chip */}
+                            {isSortActive && (
+                                <span className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                                    <RiArrowUpDownLine className="size-3" />
+                                    <span>Sort: {SORT_OPTIONS.find((s) => s.id === currentSort)?.label || currentSort}</span>
+                                    <button
+                                        type="button"
+                                        onClick={handleResetSort}
+                                        className="ml-0.5 rounded-full p-0.5 hover:bg-primary/20 transition-colors cursor-pointer"
+                                        aria-label="Reset sort to Popular"
+                                    >
+                                        <RiCloseLine className="size-3.5" />
+                                    </button>
+                                </span>
+                            )}
 
                             {/* Genre Chips - Individual chip for each selected genre */}
                             {parsedGenreIds.map((gId) => {
@@ -670,8 +722,8 @@ export default function MoviesCatalogView({
                                         {formattedFromDate && formattedToDate
                                             ? `${formattedFromDate} → ${formattedToDate}`
                                             : formattedFromDate
-                                              ? `From ${formattedFromDate}`
-                                              : `Until ${formattedToDate}`}
+                                                ? `From ${formattedFromDate}`
+                                                : `Until ${formattedToDate}`}
                                     </span>
                                     <button
                                         type="button"

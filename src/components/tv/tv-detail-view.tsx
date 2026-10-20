@@ -10,7 +10,6 @@ import TrailerModal from "@/components/movie/trailer-modal";
 import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
 import { formatDate } from "@/lib/date";
 import {
-    RiArrowLeftLine,
     RiCalendarLine,
     RiFilmLine,
     RiPlayFill,
@@ -67,17 +66,6 @@ export default function TVDetailView({ tv, recommendations }: TVDetailViewProps)
 
     return (
         <div className="relative min-h-screen bg-background text-foreground pb-20">
-            {/* Top Navigation Bar */}
-            <div className="sticky top-16 z-30 flex items-center border-b border-border/60 bg-background/80 px-4 py-3 backdrop-blur-md sm:px-8">
-                <Link
-                    href="/"
-                    className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground transition hover:text-foreground active:scale-95"
-                >
-                    <RiArrowLeftLine className="size-4" />
-                    <span>Back to Home</span>
-                </Link>
-            </div>
-
             {/* Hero Backdrop Section */}
             <div className="relative min-h-[460px] w-full overflow-hidden bg-muted sm:min-h-[540px]">
                 <Image
@@ -92,7 +80,22 @@ export default function TVDetailView({ tv, recommendations }: TVDetailViewProps)
                 <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
 
                 {/* Main TV Info Layout */}
-                <div className="relative z-10 mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-8">
+                <div className="relative z-10 mx-auto max-w-6xl px-4 pb-12 pt-6 sm:px-8">
+                    {/* Breadcrumb Navigation */}
+                    <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground" aria-label="Breadcrumb">
+                        <Link href="/" className="hover:text-foreground transition-colors">
+                            Home
+                        </Link>
+                        <span>/</span>
+                        <Link href="/tv" className="hover:text-foreground transition-colors">
+                            TV Series
+                        </Link>
+                        <span>/</span>
+                        <span className="truncate max-w-[200px] sm:max-w-md font-medium text-foreground">
+                            {tv.name}
+                        </span>
+                    </nav>
+
                     <div className="flex flex-col gap-8 md:flex-row md:items-end">
                         {/* Poster */}
                         <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl border border-border/80 bg-muted shadow-2xl sm:w-60">

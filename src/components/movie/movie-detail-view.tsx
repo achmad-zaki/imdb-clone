@@ -13,6 +13,7 @@ import {
     RiTimeLine
 } from "@remixicon/react";
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 type MovieDetailViewProps = {
@@ -49,7 +50,22 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                 <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
 
                 {/* Main Movie Info Layout */}
-                <div className="relative z-10 mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-8">
+                <div className="relative z-10 mx-auto max-w-6xl px-4 pb-12 pt-6 sm:px-8">
+                    {/* Breadcrumb Navigation */}
+                    <nav className="mb-6 flex items-center gap-2 text-xs text-muted-foreground" aria-label="Breadcrumb">
+                        <Link href="/" className="hover:text-foreground transition-colors">
+                            Home
+                        </Link>
+                        <span>/</span>
+                        <Link href="/movies" className="hover:text-foreground transition-colors">
+                            Movies
+                        </Link>
+                        <span>/</span>
+                        <span className="truncate max-w-[200px] sm:max-w-md font-medium text-foreground">
+                            {movie.title}
+                        </span>
+                    </nav>
+
                     <div className="flex flex-col gap-8 md:flex-row md:items-end">
                         {/* Poster */}
                         <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl border border-border/80 bg-muted shadow-2xl sm:w-60">

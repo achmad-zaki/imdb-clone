@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import { Movie } from "@/types/movie";
-import { TVShow } from "@/types/tv";
 import MovieCard, { MediaCardItem } from "@/components/movie/movie-card";
 import TrailerModal from "@/components/movie/trailer-modal";
+import { Movie } from "@/types/movie";
+import { TVShow } from "@/types/tv";
 import { RiFilmLine, RiTvLine } from "@remixicon/react";
+import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 
 const POPULAR_MOVIE_GENRES = [
@@ -114,11 +114,10 @@ export default function MovieExplorer({
                                     setMediaType("movie");
                                     setSelectedGenreId(0);
                                 }}
-                                className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
-                                    mediaType === "movie"
-                                        ? "text-primary-foreground"
-                                        : "text-muted-foreground hover:text-foreground"
-                                }`}
+                                className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${mediaType === "movie"
+                                    ? "text-primary-foreground"
+                                    : "text-muted-foreground hover:text-foreground"
+                                    }`}
                             >
                                 {mediaType === "movie" && (
                                     <motion.span
@@ -139,11 +138,10 @@ export default function MovieExplorer({
                                     setMediaType("tv");
                                     setSelectedGenreId(0);
                                 }}
-                                className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
-                                    mediaType === "tv"
-                                        ? "text-primary-foreground"
-                                        : "text-muted-foreground hover:text-foreground"
-                                }`}
+                                className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${mediaType === "tv"
+                                    ? "text-primary-foreground"
+                                    : "text-muted-foreground hover:text-foreground"
+                                    }`}
                             >
                                 {mediaType === "tv" && (
                                     <motion.span
@@ -171,13 +169,6 @@ export default function MovieExplorer({
                                 Reset filter
                             </button>
                         )}
-                        <Link
-                            href={mediaType === "movie" ? "/movies" : "/tv"}
-                            className="group inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card px-3.5 py-1.5 text-xs font-semibold text-foreground transition-all duration-200 hover:border-primary/50 hover:bg-muted hover:text-primary active:scale-95 shadow-xs"
-                        >
-                            <span>View All</span>
-                            <FaArrowRight className="size-2.5 transition-transform group-hover:translate-x-0.5" />
-                        </Link>
                     </div>
                 </div>
 
@@ -206,11 +197,10 @@ export default function MovieExplorer({
                                 key={g.id}
                                 type="button"
                                 onClick={() => setSelectedGenreId(g.id)}
-                                className={`shrink-0 rounded-lg sm:rounded-md px-3 py-1.5 text-xs transition-all active:scale-95 ${
-                                    isSelected
-                                        ? "bg-primary text-primary-foreground font-semibold shadow-xs shadow-primary/20"
-                                        : "bg-card border border-border/70 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
-                                }`}
+                                className={`shrink-0 rounded-lg sm:rounded-md px-3 py-1.5 text-xs transition-all active:scale-95 ${isSelected
+                                    ? "bg-primary text-primary-foreground font-semibold shadow-xs shadow-primary/20"
+                                    : "bg-card border border-border/70 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
+                                    }`}
                             >
                                 {g.name}
                             </button>

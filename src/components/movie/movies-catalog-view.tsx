@@ -778,10 +778,11 @@ export default function MoviesCatalogView({
                                     className="w-full"
                                 >
                                     <div className="grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 w-full min-w-0">
-                                        {initialMovies.map((movie) => (
+                                        {initialMovies.map((movie, index) => (
                                             <MovieCard
                                                 key={movie.id}
                                                 movie={movie}
+                                                priority={index < 4}
                                                 onPlayTrailer={(m) => setActiveTrailerMovie(m)}
                                             />
                                         ))}

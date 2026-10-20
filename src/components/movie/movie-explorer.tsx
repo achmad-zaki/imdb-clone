@@ -136,10 +136,11 @@ export default function MovieExplorer({
                         className="w-full"
                     >
                         <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-full min-w-0">
-                            {activeItems.map((item) => (
+                            {activeItems.map((item, index) => (
                                 <MovieCard
                                     key={`${item.media_type || "media"}-${item.id}`}
                                     movie={item}
+                                    priority={index < 4}
                                     onPlayTrailer={(m) => setActiveTrailerMovie(m)}
                                 />
                             ))}

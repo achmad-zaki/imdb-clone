@@ -15,9 +15,10 @@ export type MediaCardItem = Movie & {
 type MovieCardProps = {
     movie: MediaCardItem;
     onPlayTrailer?: (movie: Movie) => void;
+    priority?: boolean;
 };
 
-export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
+export default function MovieCard({ movie, onPlayTrailer, priority = false }: MovieCardProps) {
     const year = movie.release_date
         ? movie.release_date.slice(0, 4)
         : "";
@@ -43,7 +44,8 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
-                    loading="lazy"
+                    priority={priority}
+                    loading={priority ? "eager" : "lazy"}
                 />
 
                 {/* Rating Badge */}

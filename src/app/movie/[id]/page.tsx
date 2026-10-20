@@ -50,16 +50,16 @@ async function MovieDetailContent({ idPromise }: { idPromise: Promise<{ id: stri
 
 function MovieDetailSkeleton() {
     return (
-        <div className="min-h-screen bg-zinc-950 px-4 py-16 sm:px-8">
+        <div className="min-h-screen bg-background px-4 py-16 sm:px-8">
             <div className="mx-auto max-w-6xl animate-pulse space-y-8">
-                <div className="h-8 w-32 rounded-full bg-zinc-900" />
+                <div className="h-8 w-32 rounded-full bg-muted" />
                 <div className="flex flex-col gap-8 md:flex-row md:items-end">
-                    <div className="aspect-[2/3] w-48 rounded-2xl bg-zinc-900 sm:w-60" />
+                    <div className="aspect-[2/3] w-48 rounded-2xl bg-muted sm:w-60" />
                     <div className="flex-1 space-y-4">
-                        <div className="h-4 w-1/4 rounded bg-zinc-900" />
-                        <div className="h-10 w-3/4 rounded bg-zinc-850" />
-                        <div className="h-5 w-1/3 rounded bg-zinc-900" />
-                        <div className="h-12 w-48 rounded-full bg-zinc-800" />
+                        <div className="h-4 w-1/4 rounded bg-muted" />
+                        <div className="h-10 w-3/4 rounded bg-muted" />
+                        <div className="h-5 w-1/3 rounded bg-muted" />
+                        <div className="h-12 w-48 rounded-full bg-muted" />
                     </div>
                 </div>
             </div>

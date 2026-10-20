@@ -231,10 +231,11 @@ export default function TVCatalogView({
                         className="w-full"
                     >
                         <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-3.5 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-6 w-full min-w-0">
-                            {filteredShows.map((tv) => (
+                            {filteredShows.map((tv, index) => (
                                 <MovieCard
                                     key={tv.id}
                                     movie={tv}
+                                    priority={index < 4}
                                     onPlayTrailer={(m) => setActiveTrailerMovie(m)}
                                 />
                             ))}

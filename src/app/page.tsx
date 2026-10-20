@@ -1,4 +1,9 @@
-import { getPopularMovies, getTrendingMovies, getPopularPeople, getTrendingPeople } from "@/lib/tmdb";
+import {
+    getPopularMovies,
+    getTrendingMovies,
+    getPopularPeople,
+    getTrendingPeople,
+} from "@/lib/tmdb";
 import HomeClient from "@/components/movie/home-client";
 
 export default async function Home() {

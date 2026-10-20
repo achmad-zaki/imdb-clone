@@ -3,9 +3,9 @@
 import { getPosterUrl } from "@/lib/tmdb-images";
 import type { Movie } from "@/types/movie";
 import { RiPlayFill, RiStarFill } from "@remixicon/react";
-import { FaArrowRight } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
+import { FaArrowRight } from "react-icons/fa";
 
 type MovieCardProps = {
     movie: Movie;

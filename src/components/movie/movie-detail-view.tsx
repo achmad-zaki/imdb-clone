@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Movie, MovieDetail } from "@/types/movie";
-import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
 import MovieCard from "@/components/movie/movie-card";
 import TrailerModal from "@/components/movie/trailer-modal";
+import { formatDate } from "@/lib/date";
+import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
+import { Movie, MovieDetail } from "@/types/movie";
 import {
     RiArrowLeftLine,
     RiCalendarLine,
@@ -15,7 +13,9 @@ import {
     RiStarFill,
     RiTimeLine,
 } from "@remixicon/react";
-import { formatDate } from "@/lib/date";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 type MovieDetailViewProps = {
     movie: MovieDetail;

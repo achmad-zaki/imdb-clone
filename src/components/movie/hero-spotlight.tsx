@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { GENRE_MAP } from "@/lib/tmdb";
+import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
+import { Movie } from "@/types/movie";
+import { RiFireFill, RiInformationLine, RiPlayFill, RiStarFill } from "@remixicon/react";
 import Image from "next/image";
 import Link from "next/link";
-import { Movie } from "@/types/movie";
-import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
-import { GENRE_MAP } from "@/lib/tmdb";
-import { RiFireFill, RiInformationLine, RiPlayFill, RiStarFill } from "@remixicon/react";
+import { useState } from "react";
 import { FaStar } from "react-icons/fa";
 
 type HeroSpotlightProps = {
@@ -130,11 +130,10 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                                 <button
                                     key={movie.id}
                                     onClick={() => setActiveIndex(idx)}
-                                    className={`group relative flex shrink-0 items-center gap-2 rounded-xl border p-1 text-left transition-all duration-200 ${
-                                        isSelected
+                                    className={`group relative flex shrink-0 items-center gap-2 rounded-xl border p-1 text-left transition-all duration-200 ${isSelected
                                             ? "border-primary bg-card shadow-md ring-1 ring-primary/40"
                                             : "border-border/60 bg-card/60 hover:border-border hover:bg-card"
-                                    }`}
+                                        }`}
                                     title={movie.title}
                                 >
                                     <div className="relative h-10 w-7 overflow-hidden rounded-lg bg-muted">

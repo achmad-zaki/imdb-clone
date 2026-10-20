@@ -48,7 +48,7 @@ type MovieExplorerProps = {
 };
 
 export default function MovieExplorer({
-    initialMovies,
+    initialMovies = [],
     initialTV = [],
     activeTrailerMovie,
     setActiveTrailerMovie,
@@ -94,7 +94,7 @@ export default function MovieExplorer({
 
     return (
         <section id="popular-content" className="relative mx-auto w-full max-w-6xl min-w-0 px-4 py-8 sm:py-12 sm:px-8">
-            {/* Header: Title + Segmented Switcher + View All */}
+            {/* Header: Title + Segmented Switcher */}
             <div className="border-b border-border/60 pb-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     {/* Left: Section Marker + Title + Segmented Switcher */}
@@ -114,10 +114,11 @@ export default function MovieExplorer({
                                     setMediaType("movie");
                                     setSelectedGenreId(0);
                                 }}
-                                className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${mediaType === "movie"
-                                    ? "text-primary-foreground"
-                                    : "text-muted-foreground hover:text-foreground"
-                                    }`}
+                                className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
+                                    mediaType === "movie"
+                                        ? "text-primary-foreground"
+                                        : "text-muted-foreground hover:text-foreground"
+                                }`}
                             >
                                 {mediaType === "movie" && (
                                     <motion.span
@@ -138,10 +139,11 @@ export default function MovieExplorer({
                                     setMediaType("tv");
                                     setSelectedGenreId(0);
                                 }}
-                                className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${mediaType === "tv"
-                                    ? "text-primary-foreground"
-                                    : "text-muted-foreground hover:text-foreground"
-                                    }`}
+                                className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
+                                    mediaType === "tv"
+                                        ? "text-primary-foreground"
+                                        : "text-muted-foreground hover:text-foreground"
+                                }`}
                             >
                                 {mediaType === "tv" && (
                                     <motion.span
@@ -158,7 +160,7 @@ export default function MovieExplorer({
                         </div>
                     </div>
 
-                    {/* Right: Reset filter & View All */}
+                    {/* Right: Reset filter */}
                     <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
                         {selectedGenreId !== 0 && (
                             <button
@@ -197,10 +199,11 @@ export default function MovieExplorer({
                                 key={g.id}
                                 type="button"
                                 onClick={() => setSelectedGenreId(g.id)}
-                                className={`shrink-0 rounded-lg sm:rounded-md px-3 py-1.5 text-xs transition-all active:scale-95 ${isSelected
-                                    ? "bg-primary text-primary-foreground font-semibold shadow-xs shadow-primary/20"
-                                    : "bg-card border border-border/70 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
-                                    }`}
+                                className={`shrink-0 rounded-lg sm:rounded-md px-3 py-1.5 text-xs transition-all active:scale-95 ${
+                                    isSelected
+                                        ? "bg-primary text-primary-foreground font-semibold shadow-xs shadow-primary/20"
+                                        : "bg-card border border-border/70 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground"
+                                }`}
                             >
                                 {g.name}
                             </button>

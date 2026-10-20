@@ -5,8 +5,16 @@ import Link from "next/link";
 import { Movie } from "@/types/movie";
 import MovieCard from "@/components/movie/movie-card";
 import TrailerModal from "@/components/movie/trailer-modal";
-import { RiFilmLine, RiFilter3Line, RiSortDesc } from "@remixicon/react";
+import {
+    RiCalendarLine,
+    RiFilmLine,
+    RiFilter3Line,
+    RiFireLine,
+    RiSortDesc,
+    RiStarLine,
+} from "@remixicon/react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa6";
+import { AnimatePresence, motion } from "framer-motion";
 
 const POPULAR_GENRES = [
     { id: 0, name: "All Genres" },
@@ -22,10 +30,10 @@ const POPULAR_GENRES = [
     { id: 53, name: "Thriller" },
 ];
 
-const SORT_OPTIONS = [
-    { id: "popular", label: "Popular" },
-    { id: "top_rated", label: "Top Rated" },
-    { id: "upcoming", label: "Upcoming" },
+const SORT_OPTIONS: { id: string; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: "popular", label: "Popular", icon: RiFireLine },
+    { id: "top_rated", label: "Top Rated", icon: RiStarLine },
+    { id: "upcoming", label: "Upcoming", icon: RiCalendarLine },
 ];
 
 type MoviesCatalogViewProps = {
@@ -116,25 +124,32 @@ export default function MoviesCatalogView({
                         </p>
                     </div>
 
-                    {/* Sort Selector */}
-                    <div className="flex items-center gap-1.5 self-start sm:self-auto rounded-xl border border-border/70 bg-card p-1 shadow-xs">
-                        <span className="flex items-center gap-1 px-2 text-xs font-medium text-muted-foreground">
-                            <RiSortDesc className="size-3.5" />
-                            <span className="hidden xs:inline">Sort:</span>
-                        </span>
+                    {/* Sort Selector with animated sliding indicator */}
+                    <div className="relative inline-flex items-center rounded-full border border-border/80 bg-muted/60 p-1 backdrop-blur-xs self-start sm:self-auto">
                         {SORT_OPTIONS.map((opt) => {
                             const isActive = currentSort === opt.id;
+                            const Icon = opt.icon;
                             return (
                                 <Link
                                     key={opt.id}
                                     href={buildUrl(1, opt.id)}
-                                    className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
+                                    className={`relative z-10 flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold transition-colors duration-200 ${
                                         isActive
-                                            ? "bg-primary text-primary-foreground font-semibold shadow-xs"
-                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                            ? "text-primary-foreground"
+                                            : "text-muted-foreground hover:text-foreground"
                                     }`}
                                 >
-                                    {opt.label}
+                                    {isActive && (
+                                        <motion.span
+                                            layoutId="activeCatalogSortTab"
+                                            className="absolute inset-0 rounded-full bg-primary shadow-xs shadow-primary/20"
+                                            transition={{ type: "spring", stiffness: 450, damping: 32 }}
+                                        />
+                                    )}
+                                    <span className="relative z-10 flex items-center gap-1.5">
+                                        <Icon className="size-3.5" />
+                                        <span>{opt.label}</span>
+                                    </span>
                                 </Link>
                             );
                         })}
@@ -185,37 +200,55 @@ export default function MoviesCatalogView({
                 )}
             </div>
 
-            {/* Movie Grid / Empty State */}
-            {filteredMovies.length > 0 ? (
-                <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-full min-w-0">
-                    {filteredMovies.map((movie) => (
-                        <MovieCard
-                            key={movie.id}
-                            movie={movie}
-                            onPlayTrailer={(m) => setActiveTrailerMovie(m)}
-                        />
-                    ))}
-                </div>
-            ) : (
-                <div className="mt-16 flex flex-col items-center justify-center text-center">
-                    <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                        <RiFilmLine className="size-6" />
-                    </div>
-                    <h3 className="mt-4 text-base font-semibold text-foreground">
-                        No movies found on this page
-                    </h3>
-                    <p className="mt-1 text-xs text-muted-foreground max-w-sm">
-                        There are no movies matching the selected genre on page {currentPage}.
-                    </p>
-                    <button
-                        type="button"
-                        onClick={() => setSelectedGenreId(0)}
-                        className="mt-4 rounded-full border border-border/80 bg-card px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted"
+            {/* Movie Grid / Empty State with smooth fade-and-slide transition */}
+            <AnimatePresence mode="wait">
+                {filteredMovies.length > 0 ? (
+                    <motion.div
+                        key={`${currentSort}-${selectedGenreId}-${currentPage}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="w-full"
                     >
-                        Show All on This Page
-                    </button>
-                </div>
-            )}
+                        <div className="mt-6 sm:mt-8 grid grid-cols-2 gap-x-3.5 gap-y-6 sm:grid-cols-3 sm:gap-x-4 sm:gap-y-7 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-full min-w-0">
+                            {filteredMovies.map((movie) => (
+                                <MovieCard
+                                    key={movie.id}
+                                    movie={movie}
+                                    onPlayTrailer={(m) => setActiveTrailerMovie(m)}
+                                />
+                            ))}
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="empty-state"
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        transition={{ duration: 0.2 }}
+                        className="mt-16 flex flex-col items-center justify-center text-center"
+                    >
+                        <div className="flex size-14 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                            <RiFilmLine className="size-6" />
+                        </div>
+                        <h3 className="mt-4 text-base font-semibold text-foreground">
+                            No movies found on this page
+                        </h3>
+                        <p className="mt-1 text-xs text-muted-foreground max-w-sm">
+                            There are no movies matching the selected genre on page {currentPage}.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => setSelectedGenreId(0)}
+                            className="mt-4 rounded-full border border-border/80 bg-card px-4 py-1.5 text-xs font-medium text-foreground transition hover:bg-muted"
+                        >
+                            Show All on This Page
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Pagination Controls */}
             {totalPages > 1 && (

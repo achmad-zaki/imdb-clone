@@ -1,11 +1,11 @@
+import HomeClient from "@/components/movie/home-client";
 import {
     getPopularMovies,
-    getTrendingMovies,
     getPopularPeople,
-    getTrendingPeople,
     getPopularTVShows,
+    getTrendingMovies,
+    getTrendingPeople,
 } from "@/lib/tmdb";
-import HomeClient from "@/components/movie/home-client";
 
 export default async function Home() {
     const [trendingData, popularData, peopleData, tvData] = await Promise.all([

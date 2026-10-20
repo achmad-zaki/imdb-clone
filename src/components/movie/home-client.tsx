@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import HeroSpotlight from "@/components/movie/hero-spotlight";
+import MovieExplorer from "@/components/movie/movie-explorer";
+import TrendingPeople from "@/components/movie/trending-people";
 import { Movie } from "@/types/movie";
 import { Person } from "@/types/person";
 import { TVShow } from "@/types/tv";
-import HeroSpotlight from "@/components/movie/hero-spotlight";
-import TrendingPeople from "@/components/movie/trending-people";
-import MovieExplorer from "@/components/movie/movie-explorer";
+import { useState } from "react";
 
 type HomeClientProps = {
     trendingMovies: Movie[];

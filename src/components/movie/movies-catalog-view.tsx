@@ -210,49 +210,24 @@ export default function MoviesCatalogView({
         setToDate(currentToDate || "");
     }, [currentSort, parsedGenreIds, currentFromDate, currentToDate]);
 
-    // Toggle multi-select genre
-    const toggleGenre = (genreId: number) => {
-        setSelectedGenreIds((prev) =>
-            prev.includes(genreId) ? prev.filter((id) => id !== genreId) : [...prev, genreId]
-        );
+    // Format human readable date helper
+    const formatDisplayDate = (dateStr: string) => {
+        if (!dateStr) return "";
+        try {
+            const d = parseISO(dateStr);
+            return isValid(d) ? format(d, "dd MMM yyyy") : dateStr;
+        } catch {
+            return dateStr;
+        }
     };
-
-    // Active filters evaluation
-    const isSortActive = (currentSort || "popular") !== "popular";
-    const isGenreActive = selectedGenreIds.length > 0;
-    const isDateActive = Boolean(fromDate || toDate);
-    const hasActiveFilters = isSortActive || isGenreActive || isDateActive;
-    const activeFiltersCount =
-        (isSortActive ? 1 : 0) + selectedGenreIds.length + (fromDate ? 1 : 0) + (toDate ? 1 : 0);
-
-    // Format human readable date for chips
-    const formattedFromDate = useMemo(() => {
-        if (!currentFromDate) return "";
-        try {
-            const d = parseISO(currentFromDate);
-            return isValid(d) ? format(d, "dd MMM yyyy") : currentFromDate;
-        } catch {
-            return currentFromDate;
-        }
-    }, [currentFromDate]);
-
-    const formattedToDate = useMemo(() => {
-        if (!currentToDate) return "";
-        try {
-            const d = parseISO(currentToDate);
-            return isValid(d) ? format(d, "dd MMM yyyy") : currentToDate;
-        } catch {
-            return currentToDate;
-        }
-    }, [currentToDate]);
 
     // URL builder
     const buildUrl = (
         page: number,
         sort: string = currentSort,
-        genreIds: number[] = parsedGenreIds,
-        from: string = currentFromDate || "",
-        to: string = currentToDate || ""
+        genreIds: number[] = selectedGenreIds,
+        from: string = fromDate || currentFromDate || "",
+        to: string = toDate || currentToDate || ""
     ) => {
         const params = new URLSearchParams();
         if (page > 1) params.set("page", page.toString());
@@ -262,23 +237,6 @@ export default function MoviesCatalogView({
         if (to && to.trim() !== "") params.set("to", to.trim());
         const query = params.toString();
         return query ? `/movies?${query}` : "/movies";
-    };
-
-    // Handle sort change from Shadcn Select
-    const handleSortChange = (newSort: string) => {
-        setSelectedSort(newSort);
-        const targetUrl = buildUrl(1, newSort, selectedGenreIds, fromDate, toDate);
-        startTransition(() => {
-            router.push(targetUrl);
-        });
-    };
-
-    const handleResetSort = () => {
-        setSelectedSort("popular");
-        const targetUrl = buildUrl(1, "popular", parsedGenreIds, currentFromDate, currentToDate);
-        startTransition(() => {
-            router.push(targetUrl);
-        });
     };
 
     // Apply filters
@@ -293,6 +251,40 @@ export default function MoviesCatalogView({
             router.push(targetUrl);
         });
         setIsMobileFiltersOpen(false);
+    };
+
+    // Toggle multi-select genre (applies immediately)
+    const toggleGenre = (genreId: number) => {
+        const nextGenres = selectedGenreIds.includes(genreId)
+            ? selectedGenreIds.filter((id) => id !== genreId)
+            : [...selectedGenreIds, genreId];
+        setSelectedGenreIds(nextGenres);
+        handleApplyFilters(nextGenres, fromDate, toDate, selectedSort);
+    };
+
+    // Clear all selected genres
+    const handleClearGenres = () => {
+        setSelectedGenreIds([]);
+        handleApplyFilters([], fromDate, toDate, selectedSort);
+    };
+
+    // Active filters evaluation
+    const isSortActive = (selectedSort || currentSort || "popular") !== "popular";
+    const isGenreActive = selectedGenreIds.length > 0;
+    const isDateActive = Boolean(fromDate || toDate || currentFromDate || currentToDate);
+    const hasActiveFilters = isSortActive || isGenreActive || isDateActive;
+    const activeFiltersCount =
+        (isSortActive ? 1 : 0) + selectedGenreIds.length + (isDateActive ? 1 : 0);
+
+    // Handle sort change from Shadcn Select
+    const handleSortChange = (newSort: string) => {
+        setSelectedSort(newSort);
+        handleApplyFilters(selectedGenreIds, fromDate, toDate, newSort);
+    };
+
+    const handleResetSort = () => {
+        setSelectedSort("popular");
+        handleApplyFilters(selectedGenreIds, fromDate, toDate, "popular");
     };
 
     // Reset all filters
@@ -310,21 +302,15 @@ export default function MoviesCatalogView({
 
     // Remove single genre from active filters
     const handleRemoveSingleGenre = (genreIdToRemove: number) => {
-        const nextGenres = parsedGenreIds.filter((id) => id !== genreIdToRemove);
+        const nextGenres = selectedGenreIds.filter((id) => id !== genreIdToRemove);
         setSelectedGenreIds(nextGenres);
-        const targetUrl = buildUrl(1, currentSort, nextGenres, currentFromDate, currentToDate);
-        startTransition(() => {
-            router.push(targetUrl);
-        });
+        handleApplyFilters(nextGenres, fromDate, toDate, selectedSort);
     };
 
     const handleRemoveDate = () => {
         setFromDate("");
         setToDate("");
-        const targetUrl = buildUrl(1, currentSort, parsedGenreIds, "", "");
-        startTransition(() => {
-            router.push(targetUrl);
-        });
+        handleApplyFilters(selectedGenreIds, "", "", selectedSort);
     };
 
     // Quick year presets
@@ -449,7 +435,7 @@ export default function MoviesCatalogView({
                     {selectedGenreIds.length > 0 && (
                         <button
                             type="button"
-                            onClick={() => setSelectedGenreIds([])}
+                            onClick={handleClearGenres}
                             className="text-[11px] text-muted-foreground hover:text-primary transition-colors cursor-pointer"
                         >
                             Clear
@@ -679,7 +665,7 @@ export default function MoviesCatalogView({
                             {isSortActive && (
                                 <span className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                                     <RiArrowUpDownLine className="size-3" />
-                                    <span>Sort: {SORT_OPTIONS.find((s) => s.id === currentSort)?.label || currentSort}</span>
+                                    <span>Sort: {SORT_OPTIONS.find((s) => s.id === (selectedSort || currentSort))?.label || (selectedSort || currentSort)}</span>
                                     <button
                                         type="button"
                                         onClick={handleResetSort}
@@ -692,7 +678,7 @@ export default function MoviesCatalogView({
                             )}
 
                             {/* Genre Chips - Individual chip for each selected genre */}
-                            {parsedGenreIds.map((gId) => {
+                            {selectedGenreIds.map((gId) => {
                                 const genreObj = ALL_GENRES.find((g) => g.id === gId);
                                 const label = genreObj ? genreObj.name : `Genre #${gId}`;
                                 return (
@@ -719,11 +705,11 @@ export default function MoviesCatalogView({
                                 <span className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                                     <RiCalendarLine className="size-3" />
                                     <span>
-                                        {formattedFromDate && formattedToDate
-                                            ? `${formattedFromDate} → ${formattedToDate}`
-                                            : formattedFromDate
-                                                ? `From ${formattedFromDate}`
-                                                : `Until ${formattedToDate}`}
+                                        {(fromDate || currentFromDate) && (toDate || currentToDate)
+                                            ? `${formatDisplayDate(fromDate || currentFromDate || "")} → ${formatDisplayDate(toDate || currentToDate || "")}`
+                                            : (fromDate || currentFromDate)
+                                                ? `From ${formatDisplayDate(fromDate || currentFromDate || "")}`
+                                                : `Until ${formatDisplayDate(toDate || currentToDate || "")}`}
                                     </span>
                                     <button
                                         type="button"

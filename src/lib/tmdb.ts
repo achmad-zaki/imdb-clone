@@ -152,6 +152,48 @@ export async function discoverMovies({
     return tmdbFetch<MovieResponse>("/discover/movie", params);
 }
 
+export type DiscoverTVOptions = {
+    page?: number;
+    sortBy?: string;
+    withGenres?: string | number;
+    airDateGte?: string;
+    airDateLte?: string;
+    language?: string;
+};
+
+export async function discoverTVShows({
+    page = 1,
+    sortBy = "popularity.desc",
+    withGenres,
+    airDateGte,
+    airDateLte,
+    language = "en-US",
+}: DiscoverTVOptions = {}): Promise<TVResponse> {
+    const params: Record<string, string> = {
+        language,
+        page: page.toString(),
+        sort_by: sortBy,
+    };
+
+    if (withGenres && withGenres !== "0" && withGenres !== 0) {
+        params.with_genres = withGenres.toString();
+    }
+
+    if (airDateGte && airDateGte.trim() !== "") {
+        params["first_air_date.gte"] = airDateGte.trim();
+    }
+
+    if (airDateLte && airDateLte.trim() !== "") {
+        params["first_air_date.lte"] = airDateLte.trim();
+    }
+
+    if (sortBy === "vote_average.desc") {
+        params["vote_count.gte"] = "100";
+    }
+
+    return tmdbFetch<TVResponse>("/discover/tv", params);
+}
+
 
 export async function searchMovies(query: string, page = 1): Promise<MovieResponse> {
     if (!query || query.trim() === "") {

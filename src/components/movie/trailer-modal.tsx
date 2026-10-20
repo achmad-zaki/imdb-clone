@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Movie, Video } from "@/types/movie";
+import { MediaCardItem } from "@/components/movie/movie-card";
 import { RiCloseLine, RiFilmLine, RiPlayFill, RiStarFill } from "@remixicon/react";
 
 type TrailerModalProps = {
-    movie: Movie | null;
+    movie: MediaCardItem | Movie | null;
     isOpen: boolean;
     onClose: () => void;
 };
@@ -27,7 +28,10 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
             setError(null);
 
             try {
-                const res = await fetch(`/api/trailer?movieId=${movie.id}`);
+                const typeParam = (movie as { media_type?: string })?.media_type
+                    ? `&type=${(movie as { media_type?: string }).media_type}`
+                    : "";
+                const res = await fetch(`/api/trailer?movieId=${movie.id}${typeParam}`);
                 if (!res.ok) throw new Error("Failed to load trailer");
                 const data = await res.json();
                 if (isCancelled) return;

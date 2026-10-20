@@ -19,6 +19,7 @@ import {
     RiUserStarLine,
 } from "@remixicon/react";
 import { FaStar } from "react-icons/fa";
+import { formatDate } from "@/lib/date";
 
 type PersonDetailViewProps = {
     person: PersonDetail;
@@ -150,7 +151,7 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
                                 <div className="flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/50 px-2.5 py-1 text-xs font-medium">
                                     <RiCake2Line className="size-3.5 text-primary" />
                                     <span>
-                                        Born: {person.birthday}
+                                        Born: {formatDate(person.birthday)}
                                         {age !== null && !person.deathday && ` (Age ${age})`}
                                     </span>
                                 </div>
@@ -159,7 +160,7 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
                             {person.deathday && (
                                 <div className="flex items-center gap-1.5 rounded-md border border-border/60 bg-muted/50 px-2.5 py-1 text-xs font-medium text-zinc-400">
                                     <RiCalendarLine className="size-3.5" />
-                                    <span>Died: {person.deathday} (Age {age})</span>
+                                    <span>Died: {formatDate(person.deathday)} (Age {age})</span>
                                 </div>
                             )}
 

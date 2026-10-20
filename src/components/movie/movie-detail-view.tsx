@@ -15,6 +15,7 @@ import {
     RiStarFill,
     RiTimeLine,
 } from "@remixicon/react";
+import { formatDate } from "@/lib/date";
 
 type MovieDetailViewProps = {
     movie: MovieDetail;
@@ -179,7 +180,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                             </div>
                             <div className="flex justify-between">
                                 <dt className="text-muted-foreground">Release Date</dt>
-                                <dd className="font-semibold text-foreground">{movie.release_date || "—"}</dd>
+                                <dd className="font-semibold text-foreground">{formatDate(movie.release_date) || "—"}</dd>
                             </div>
                         </dl>
                     </div>

@@ -6,6 +6,7 @@ import { RiPlayFill, RiStarFill } from "@remixicon/react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
+import { getMovieUrl } from "@/lib/slug";
 
 type MovieCardProps = {
     movie: Movie;
@@ -18,13 +19,14 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
         : "";
 
     const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "—";
+    const movieUrl = getMovieUrl(movie.id, movie.title);
 
     return (
         <div className="group relative flex flex-col min-w-0 w-full">
             {/* Poster Card Container */}
             <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-border/70 bg-muted shadow-xs transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5">
                 <Link
-                    href={`/movie/${movie.id}`}
+                    href={movieUrl}
                     className="absolute inset-0 z-0"
                     aria-label={`View details for ${movie.title}`}
                 />
@@ -65,7 +67,7 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
                     )}
 
                     <Link
-                        href={`/movie/${movie.id}`}
+                        href={movieUrl}
                         className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-200 underline-offset-4 transition hover:text-white hover:underline"
                     >
                         <span>View Details</span>
@@ -77,7 +79,7 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
             {/* Movie Info */}
             <div className="mt-2.5 flex flex-col px-0.5">
                 <Link
-                    href={`/movie/${movie.id}`}
+                    href={movieUrl}
                     className="line-clamp-1 text-sm font-semibold tracking-tight text-foreground transition-colors hover:text-primary"
                     title={movie.title}
                 >

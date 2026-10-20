@@ -9,6 +9,12 @@ export function slugify(text: string): string {
         .replace(/^-+|-+$/g, "");
 }
 
+export function getMovieUrl(id: number | string, title?: string): string {
+    if (!title) return `/movie/${id}`;
+    const slug = slugify(title);
+    return slug ? `/movie/${id}-${slug}` : `/movie/${id}`;
+}
+
 export function getPersonUrl(id: number | string, name?: string): string {
     if (!name) return `/person/${id}`;
     const slug = slugify(name);

@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
+import { getMovieUrl } from "@/lib/slug";
 
 type HeroSpotlightProps = {
     movies: Movie[];
@@ -111,7 +112,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                         </button>
 
                         <Link
-                            href={`/movie/${activeMovie.id}`}
+                            href={getMovieUrl(activeMovie.id, activeMovie.title)}
                             className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/80 px-5 py-3 text-sm font-medium text-foreground backdrop-blur-md transition-all duration-200 hover:bg-muted"
                         >
                             <RiInformationLine className="size-4 text-muted-foreground" />

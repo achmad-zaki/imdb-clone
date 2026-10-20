@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getMovieDetails, getMovieRecommendations } from "@/lib/tmdb";
+import { parseEntityId, getMovieUrl } from "@/lib/slug";
 import MovieDetailView from "@/components/movie/movie-detail-view";
 import type { Metadata } from "next";
 
@@ -10,7 +11,8 @@ type PageProps = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { id } = await params;
-    const movie = await getMovieDetails(id);
+    const numericId = parseEntityId(id);
+    const movie = await getMovieDetails(numericId);
 
     if (!movie) {
         return {
@@ -26,13 +28,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 async function MovieDetailContent({ idPromise }: { idPromise: Promise<{ id: string }> }) {
     const { id } = await idPromise;
+    const numericId = parseEntityId(id);
     const [movie, recommendations] = await Promise.all([
-        getMovieDetails(id),
-        getMovieRecommendations(id),
+        getMovieDetails(numericId),
+        getMovieRecommendations(numericId),
     ]);
 
     if (!movie) {
         notFound();
+    }
+
+    // Auto-redirect if URL doesn't have the movie slug (e.g. visited /movie/1927 instead of /movie/1927-hulk)
+    const canonicalUrl = getMovieUrl(movie.id, movie.title);
+    const expectedParam = canonicalUrl.replace("/movie/", "");
+    if (decodeURIComponent(id) !== expectedParam) {
+        redirect(canonicalUrl);
     }
 
     return <MovieDetailView movie={movie} recommendations={recommendations} />;

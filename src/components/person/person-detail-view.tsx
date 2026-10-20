@@ -20,6 +20,7 @@ import {
 } from "@remixicon/react";
 import { FaStar } from "react-icons/fa";
 import { formatDate } from "@/lib/date";
+import { getMovieUrl } from "@/lib/slug";
 
 type PersonDetailViewProps = {
     person: PersonDetail;
@@ -233,18 +234,24 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
                     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                         {topKnownFor.map((movie) => {
                             const year = movie.release_date ? movie.release_date.slice(0, 4) : "";
+                            const movieUrl = getMovieUrl(movie.id, movie.title);
                             return (
                                 <div
                                     key={movie.id}
                                     className="group relative flex flex-col rounded-xl border border-border/60 bg-card p-2 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:-translate-y-1"
                                 >
                                     <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-muted">
+                                        <Link
+                                            href={movieUrl}
+                                            className="absolute inset-0 z-0"
+                                            aria-label={`View details for ${movie.title}`}
+                                        />
                                         <Image
                                             src={getPosterUrl(movie.poster_path, "w342")}
                                             alt={movie.title}
                                             fill
                                             sizes="(max-width: 640px) 50vw, 200px"
-                                            className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                            className="object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none"
                                         />
                                         {movie.vote_average ? (
                                             <div className="absolute top-2 left-2 z-10 flex items-center gap-1 rounded-md bg-black/75 px-1.5 py-0.5 text-[10px] font-bold text-amber-400 backdrop-blur-xs">
@@ -256,7 +263,7 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
 
                                     <div className="mt-2 flex flex-col px-1">
                                         <Link
-                                            href={`/movie/${movie.id}`}
+                                            href={movieUrl}
                                             className="line-clamp-1 text-xs font-semibold text-foreground transition-colors hover:text-primary"
                                             title={movie.title}
                                         >
@@ -354,7 +361,7 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
                                         {/* Movie Title & Character */}
                                         <div className="min-w-0 flex flex-col">
                                             <Link
-                                                href={`/movie/${movie.id}`}
+                                                href={getMovieUrl(movie.id, movie.title)}
                                                 className="truncate text-sm font-semibold text-foreground transition-colors hover:text-primary"
                                                 title={movie.title}
                                             >

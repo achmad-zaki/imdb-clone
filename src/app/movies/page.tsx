@@ -83,7 +83,7 @@ async function MoviesContent({ searchParams }: MoviesPageProps) {
 
 function MoviesSkeleton() {
     return (
-        <div className="relative mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
+        <div className="relative mx-auto w-full max-w-6xl min-w-0 px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
             <div className="h-4 w-28 rounded bg-muted animate-pulse mb-4" />
             <div className="h-8 w-48 rounded bg-muted animate-pulse mb-8" />
             <div className="flex flex-col lg:flex-row gap-8">

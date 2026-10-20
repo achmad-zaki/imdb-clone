@@ -580,7 +580,7 @@ export default function MoviesCatalogView({
     );
 
     return (
-        <div className="relative mx-auto w-full max-w-7xl min-w-0 px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
+        <div className="relative mx-auto w-full max-w-6xl min-w-0 px-4 py-8 sm:py-12 sm:px-6 lg:px-8">
             {/* Breadcrumb navigation */}
             <nav className="mb-4 flex items-center gap-2 text-xs text-muted-foreground" aria-label="Breadcrumb">
                 <Link href="/" className="hover:text-foreground transition-colors">

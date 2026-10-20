@@ -50,7 +50,7 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
             </div>
 
             {/* Content Container */}
-            <div className="relative z-10 mx-auto flex h-full min-h-[500px] max-w-7xl flex-col justify-end px-4 pb-12 pt-28 sm:min-h-[580px] sm:px-8 sm:pb-16 lg:min-h-[640px]">
+            <div className="relative z-10 mx-auto flex h-full min-h-[500px] max-w-6xl flex-col justify-end px-4 pb-12 pt-28 sm:min-h-[580px] sm:px-8 sm:pb-16 lg:min-h-[640px]">
                 <div className="max-w-2xl">
                     {/* Badge */}
                     <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md shadow-xs">

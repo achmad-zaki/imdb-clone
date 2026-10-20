@@ -1,3 +1,4 @@
+import NavigationProgress from "@/components/layout/navigation-progress";
 import Footer from "@/components/layout/footer";
 import Navbar from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -45,8 +46,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <NavigationProgress />
             <Navbar />
-            <main className="flex-1">
+            <main className="flex-1 flex flex-col">
               {children}
             </main>
             <Footer />

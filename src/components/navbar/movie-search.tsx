@@ -25,6 +25,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getPersonUrl } from "@/lib/slug";
+import { startNavigationProgress } from "@/components/layout/navigation-progress";
 import { createPortal } from "react-dom";
 import {
     useCallback,
@@ -388,10 +389,12 @@ export function MovieSearchDesktop() {
     const handleSelectResult = useCallback(
         (item: SearchResultItem) => {
             if (item.type === "movie" || item.type === "tv") {
+                startNavigationProgress();
                 router.push(`/movie/${item.id}`);
                 handleClose();
                 inputRef.current?.blur();
             } else if (item.type === "person") {
+                startNavigationProgress();
                 router.push(getPersonUrl(item.id, item.title));
                 handleClose();
                 inputRef.current?.blur();
@@ -940,9 +943,11 @@ export function MovieSearchMobile() {
 
     const handleSelectResult = (item: SearchResultItem) => {
         if (item.type === "movie" || item.type === "tv") {
+            startNavigationProgress();
             router.push(`/movie/${item.id}`);
             handleClose();
         } else if (item.type === "person") {
+            startNavigationProgress();
             router.push(getPersonUrl(item.id, item.title));
             handleClose();
         } else if (item.type === "keyword") {

@@ -50,7 +50,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                 <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
 
                 {/* Back navigation */}
-                <div className="relative z-10 mx-auto max-w-7xl px-4 pt-6 sm:px-8">
+                <div className="relative z-10 mx-auto max-w-6xl px-4 pt-6 sm:px-8">
                     <Link
                         href="/"
                         className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur-md transition hover:bg-muted"
@@ -61,7 +61,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                 </div>
 
                 {/* Main Movie Info Layout */}
-                <div className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-8 sm:px-8">
+                <div className="relative z-10 mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-8">
                     <div className="flex flex-col gap-8 md:flex-row md:items-end">
                         {/* Poster */}
                         <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl border border-border/80 bg-muted shadow-2xl sm:w-60">
@@ -147,7 +147,7 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
             </div>
 
             {/* Synopsis & Details Section */}
-            <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8">
+            <div className="mx-auto max-w-6xl px-4 py-12 sm:px-8">
                 <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
                     {/* Synopsis */}
                     <div className="lg:col-span-2">

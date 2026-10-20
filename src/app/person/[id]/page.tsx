@@ -43,7 +43,7 @@ async function PersonDetailContent({ idPromise }: { idPromise: Promise<{ id: str
 function PersonDetailSkeleton() {
     return (
         <div className="min-h-screen bg-background px-4 py-16 sm:px-8">
-            <div className="mx-auto max-w-7xl animate-pulse space-y-8">
+            <div className="mx-auto max-w-6xl animate-pulse space-y-8">
                 <div className="h-8 w-32 rounded-full bg-muted" />
                 <div className="flex flex-col gap-8 md:flex-row md:items-start">
                     <div className="aspect-[2/3] w-48 sm:w-64 rounded-2xl bg-muted" />

@@ -23,12 +23,17 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
         <div className="group relative flex flex-col">
             {/* Poster Card Container */}
             <div className="relative aspect-[2/3] w-full overflow-hidden rounded-xl border border-border/70 bg-muted shadow-xs transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5">
+                <Link
+                    href={`/movie/${movie.id}`}
+                    className="absolute inset-0 z-0"
+                    aria-label={`View details for ${movie.title}`}
+                />
                 <Image
                     src={getPosterUrl(movie.poster_path)}
                     alt={`Poster ${movie.title}`}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
                     loading="lazy"
                 />
 

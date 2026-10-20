@@ -42,7 +42,7 @@ export default function MovieExplorer({
     }, [initialMovies, selectedGenreId]);
 
     return (
-        <section id="popular-movies" className="relative mx-auto max-w-7xl px-4 py-12 sm:px-8">
+        <section id="popular-movies" className="relative mx-auto max-w-6xl px-4 py-12 sm:px-8">
             {/* Section Header */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-5">
                 <div className="flex items-center gap-3">

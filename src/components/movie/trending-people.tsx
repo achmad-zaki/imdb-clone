@@ -36,7 +36,7 @@ export default function TrendingPeople({ people }: TrendingPeopleProps) {
     };
 
     return (
-        <section id="popular-people" className="relative mx-auto w-full max-w-7xl px-4 py-8 sm:px-8">
+        <section id="popular-people" className="relative mx-auto w-full max-w-6xl px-4 py-8 sm:px-8">
             {/* Header: | Popular People */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border/60 pb-4">
                 <div>

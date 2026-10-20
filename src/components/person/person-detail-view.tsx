@@ -100,7 +100,7 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
     return (
         <div className="relative min-h-screen bg-background text-foreground transition-colors duration-300">
             {/* Top Navigation Bar */}
-            <div className="relative z-10 mx-auto max-w-7xl px-4 pt-6 sm:px-8">
+            <div className="relative z-10 mx-auto max-w-6xl px-4 pt-6 sm:px-8">
                 <Link
                     href="/"
                     className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-background/80 px-4 py-2 text-xs font-semibold text-foreground backdrop-blur-md transition hover:bg-muted"
@@ -111,7 +111,7 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
             </div>
 
             {/* Profile Hero Header */}
-            <div className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-8">
+            <div className="relative z-10 mx-auto max-w-6xl px-4 py-8 sm:px-8">
                 <div className="flex flex-col gap-8 md:flex-row md:items-start">
                     {/* Portrait Photo */}
                     <div className="relative aspect-[2/3] w-48 sm:w-64 shrink-0 overflow-hidden rounded-2xl border-2 border-border/80 bg-muted shadow-2xl mx-auto md:mx-0">
@@ -221,7 +221,7 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
 
             {/* Top Known For Highlights */}
             {topKnownFor.length > 0 && (
-                <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 border-t border-border/60">
+                <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8 border-t border-border/60">
                     <div className="flex items-center gap-2.5 mb-6">
                         <div className="h-6 w-1 rounded-full bg-primary" />
                         <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
@@ -280,7 +280,7 @@ export default function PersonDetailView({ person }: PersonDetailViewProps) {
             )}
 
             {/* Complete Filmography Section */}
-            <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 border-t border-border/60">
+            <section className="mx-auto max-w-6xl px-4 py-8 sm:px-8 border-t border-border/60">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
                     <div className="flex items-center gap-2.5">
                         <div className="h-6 w-1 rounded-full bg-primary" />

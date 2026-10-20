@@ -6,10 +6,14 @@ import { RiPlayFill, RiStarFill } from "@remixicon/react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
-import { getMovieUrl } from "@/lib/slug";
+import { getMovieUrl, getTvUrl } from "@/lib/slug";
+
+export type MediaCardItem = Movie & {
+    media_type?: "movie" | "tv";
+};
 
 type MovieCardProps = {
-    movie: Movie;
+    movie: MediaCardItem;
     onPlayTrailer?: (movie: Movie) => void;
 };
 
@@ -19,7 +23,10 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
         : "";
 
     const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "—";
-    const movieUrl = getMovieUrl(movie.id, movie.title);
+    const isTV = movie.media_type === "tv";
+    const movieUrl = isTV
+        ? getTvUrl(movie.id, movie.title)
+        : getMovieUrl(movie.id, movie.title);
 
     return (
         <div className="group relative flex flex-col min-w-0 w-full">
@@ -44,6 +51,13 @@ export default function MovieCard({ movie, onPlayTrailer }: MovieCardProps) {
                     <RiStarFill className="size-3 fill-amber-400" />
                     <span className="text-white">{rating}</span>
                 </div>
+
+                {/* TV Badge */}
+                {isTV && (
+                    <div className="absolute right-2.5 top-2.5 z-10 flex items-center rounded-md border border-primary/30 bg-primary/90 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground backdrop-blur-md shadow-xs">
+                        TV
+                    </div>
+                )}
 
                 {/* Hover Overlay with Trailer Quick Action */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-0 backdrop-blur-[2px] transition-all duration-300 group-hover:opacity-100">

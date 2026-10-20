@@ -24,7 +24,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getPersonUrl, getMovieUrl } from "@/lib/slug";
+import { getPersonUrl, getMovieUrl, getTvUrl } from "@/lib/slug";
 import { createPortal } from "react-dom";
 import {
     useCallback,
@@ -387,8 +387,12 @@ export function MovieSearchDesktop() {
 
     const handleSelectResult = useCallback(
         (item: SearchResultItem) => {
-            if (item.type === "movie" || item.type === "tv") {
+            if (item.type === "movie") {
                 router.push(getMovieUrl(item.id, item.title));
+                handleClose();
+                inputRef.current?.blur();
+            } else if (item.type === "tv") {
+                router.push(getTvUrl(item.id, item.title));
                 handleClose();
                 inputRef.current?.blur();
             } else if (item.type === "person") {
@@ -735,7 +739,9 @@ export function MovieSearchDesktop() {
                                             const targetHref =
                                                 item.type === "person"
                                                     ? getPersonUrl(item.id, item.title)
-                                                    : getMovieUrl(item.id, item.title);
+                                                    : item.type === "tv"
+                                                        ? getTvUrl(item.id, item.title)
+                                                        : getMovieUrl(item.id, item.title);
 
                                             const content = (
                                                 <div
@@ -939,8 +945,11 @@ export function MovieSearchMobile() {
     };
 
     const handleSelectResult = (item: SearchResultItem) => {
-        if (item.type === "movie" || item.type === "tv") {
+        if (item.type === "movie") {
             router.push(getMovieUrl(item.id, item.title));
+            handleClose();
+        } else if (item.type === "tv") {
+            router.push(getTvUrl(item.id, item.title));
             handleClose();
         } else if (item.type === "person") {
             router.push(getPersonUrl(item.id, item.title));
@@ -1130,7 +1139,9 @@ export function MovieSearchMobile() {
                                                     const targetHref =
                                                         item.type === "person"
                                                             ? getPersonUrl(item.id, item.title)
-                                                            : getMovieUrl(item.id, item.title);
+                                                            : item.type === "tv"
+                                                                ? getTvUrl(item.id, item.title)
+                                                                : getMovieUrl(item.id, item.title);
 
                                                     const card = (
                                                         <div

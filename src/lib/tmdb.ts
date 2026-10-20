@@ -1,5 +1,6 @@
 import { Movie, MovieDetail, MovieResponse, Video, VideoResponse } from "@/types/movie";
 import { PersonDetail, PersonResponse } from "@/types/person";
+import { TVDetail, TVResponse, TVShow } from "@/types/tv";
 
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
@@ -22,6 +23,25 @@ export const GENRE_MAP: Record<number, string> = {
     10770: "TV Movie",
     53: "Thriller",
     10752: "War",
+    37: "Western",
+};
+
+export const TV_GENRE_MAP: Record<number, string> = {
+    10759: "Action & Adventure",
+    16: "Animation",
+    35: "Comedy",
+    80: "Crime",
+    99: "Documentary",
+    18: "Drama",
+    10751: "Family",
+    10762: "Kids",
+    9648: "Mystery",
+    10763: "News",
+    10764: "Reality",
+    10765: "Sci-Fi & Fantasy",
+    10766: "Soap",
+    10767: "Talk",
+    10768: "War & Politics",
     37: "Western",
 };
 
@@ -240,6 +260,66 @@ export async function getPersonDetails(personId: number | string): Promise<Perso
         });
     } catch {
         return null;
+    }
+}
+
+export async function getPopularTVShows(page = 1, language = "en-US"): Promise<TVResponse> {
+    return tmdbFetch<TVResponse>("/tv/popular", {
+        language,
+        page: page.toString(),
+    });
+}
+
+export async function getTVDetails(tvId: number | string): Promise<TVDetail | null> {
+    try {
+        const tv = await tmdbFetch<TVDetail>(`/tv/${tvId}`, {
+            language: "en-US",
+        });
+        return {
+            ...tv,
+            media_type: "tv",
+        };
+    } catch {
+        return null;
+    }
+}
+
+export async function getTVRecommendations(tvId: number | string): Promise<TVShow[]> {
+    try {
+        const data = await tmdbFetch<TVResponse>(`/tv/${tvId}/recommendations`, {
+            language: "en-US",
+            page: "1",
+        });
+        if (data.results && data.results.length > 0) return data.results;
+
+        const similar = await tmdbFetch<TVResponse>(`/tv/${tvId}/similar`, {
+            language: "en-US",
+            page: "1",
+        });
+        return similar.results || [];
+    } catch {
+        return [];
+    }
+}
+
+export async function getTVVideos(tvId: number | string): Promise<Video[]> {
+    try {
+        const response = await tmdbFetch<VideoResponse>(`/tv/${tvId}/videos`, {
+            language: "en-US",
+        });
+        const youtubeVideos = response.results?.filter((v) => v.site === "YouTube") || [];
+        return youtubeVideos.sort((a, b) => {
+            const getScore = (v: Video) => {
+                let score = 0;
+                if (v.type === "Trailer") score += 10;
+                if (v.type === "Teaser") score += 5;
+                if (v.official) score += 3;
+                return score;
+            };
+            return getScore(b) - getScore(a);
+        });
+    } catch {
+        return [];
     }
 }
 

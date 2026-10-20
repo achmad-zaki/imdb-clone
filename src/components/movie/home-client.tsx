@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Movie } from "@/types/movie";
 import { Person } from "@/types/person";
+import { TVShow } from "@/types/tv";
 import HeroSpotlight from "@/components/movie/hero-spotlight";
 import TrendingPeople from "@/components/movie/trending-people";
 import MovieExplorer from "@/components/movie/movie-explorer";
@@ -11,12 +12,14 @@ type HomeClientProps = {
     trendingMovies: Movie[];
     popularMovies: Movie[];
     trendingPeople: Person[];
+    popularTV: TVShow[];
 };
 
 export default function HomeClient({
     trendingMovies,
     popularMovies,
     trendingPeople,
+    popularTV,
 }: HomeClientProps) {
     const [activeTrailerMovie, setActiveTrailerMovie] = useState<Movie | null>(null);
 
@@ -31,9 +34,10 @@ export default function HomeClient({
             {/* Trending People Carousel */}
             <TrendingPeople people={trendingPeople} />
 
-            {/* Interactive Popular Movies Explorer */}
+            {/* Interactive Popular Movies & TV Explorer */}
             <MovieExplorer
                 initialMovies={popularMovies}
+                initialTV={popularTV}
                 activeTrailerMovie={activeTrailerMovie}
                 setActiveTrailerMovie={setActiveTrailerMovie}
             />

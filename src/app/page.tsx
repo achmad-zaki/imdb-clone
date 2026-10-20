@@ -3,11 +3,12 @@ import {
     getTrendingMovies,
     getPopularPeople,
     getTrendingPeople,
+    getPopularTVShows,
 } from "@/lib/tmdb";
 import HomeClient from "@/components/movie/home-client";
 
 export default async function Home() {
-    const [trendingData, popularData, peopleData] = await Promise.all([
+    const [trendingData, popularData, peopleData, tvData] = await Promise.all([
         getTrendingMovies("week").catch(() => ({
             results: [],
             page: 1,
@@ -28,6 +29,12 @@ export default async function Home() {
                 total_pages: 1,
                 total_results: 0,
             })),
+        getPopularTVShows(1).catch(() => ({
+            results: [],
+            page: 1,
+            total_pages: 1,
+            total_results: 0,
+        })),
     ]);
 
     return (
@@ -35,6 +42,7 @@ export default async function Home() {
             trendingMovies={trendingData.results || []}
             popularMovies={popularData.results || []}
             trendingPeople={peopleData.results || []}
+            popularTV={tvData.results || []}
         />
     );
 }

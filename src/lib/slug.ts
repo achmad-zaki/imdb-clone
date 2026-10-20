@@ -21,6 +21,12 @@ export function getPersonUrl(id: number | string, name?: string): string {
     return slug ? `/person/${id}-${slug}` : `/person/${id}`;
 }
 
+export function getTvUrl(id: number | string, name?: string): string {
+    if (!name) return `/tv/${id}`;
+    const slug = slugify(name);
+    return slug ? `/tv/${id}-${slug}` : `/tv/${id}`;
+}
+
 export function parseEntityId(param: string): string {
     const match = param.match(/^(\d+)/);
     return match ? match[1] : param;

@@ -7,12 +7,6 @@ import { useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/button";
 import { RiMoonLine, RiSunLine } from "@remixicon/react";
 
-type ViewTransitionDocument = Document & {
-    startViewTransition?: (callback: () => void) => {
-        finished: Promise<void>;
-    };
-};
-
 const emptySubscribe = () => () => {};
 
 export function ThemeToggle() {
@@ -23,36 +17,8 @@ export function ThemeToggle() {
         () => false,
     );
 
-    function handleThemeToggle(
-        event: React.MouseEvent<HTMLButtonElement>,
-    ) {
-        const nextTheme =
-            resolvedTheme === "dark" ? "light" : "dark";
-
-        const doc = typeof document !== "undefined" ? (document as ViewTransitionDocument) : null;
-
-        // Fallback jika browser belum mendukung View Transition API.
-        if (
-            !doc?.startViewTransition ||
-            window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        ) {
-            setTheme(nextTheme);
-            return;
-        }
-
-        const x = event.clientX;
-        const y = event.clientY;
-
-        document.documentElement.style.setProperty("--ripple-x", `${x}px`);
-        document.documentElement.style.setProperty("--ripple-y", `${y}px`);
-
-        try {
-            doc.startViewTransition(() => {
-                setTheme(nextTheme);
-            });
-        } catch {
-            setTheme(nextTheme);
-        }
+    function handleThemeToggle() {
+        setTheme(resolvedTheme === "dark" ? "light" : "dark");
     }
 
     if (!mounted) {

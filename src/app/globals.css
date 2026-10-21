@@ -153,40 +153,6 @@
   }
 }
 
-/* Ripple transition saat mengganti tema */
-::view-transition-group(root) {
-  animation-duration: 450ms;
-  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-::view-transition-old(root) {
-  animation: none;
-  z-index: 1;
-}
-
-::view-transition-new(root) {
-  animation: theme-ripple 450ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  z-index: 2;
-}
-
-@keyframes theme-ripple {
-  from {
-    clip-path: circle(0px at var(--ripple-x, 50%) var(--ripple-y, 50%));
-  }
-
-  to {
-    clip-path: circle(150vmax at var(--ripple-x, 50%) var(--ripple-y, 50%));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(root),
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-  }
-}
-
 /* Hide scrollbar for Chrome, Safari, Firefox and Edge */
 .no-scrollbar::-webkit-scrollbar {
   display: none;

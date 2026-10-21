@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Image from "next/image";
 import {
-    RiFilmFill,
     RiMenuLine,
     RiCloseLine,
 } from "@remixicon/react";
@@ -24,21 +24,27 @@ export default function Navbar() {
                     {/* Logo */}
                     <Link
                         href="/"
-                        className="group flex shrink-0 items-center gap-2.5 transition-transform active:scale-95"
+                        className="group flex shrink-0 items-center transition-transform active:scale-95"
                         aria-label="CINEVA Home"
                     >
-                        <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm shadow-primary/20">
-                            <RiFilmFill className="size-5 transition-transform group-hover:rotate-12" />
-                        </div>
-
-                        <div className="flex flex-col">
-                            <span className="text-base font-bold tracking-tight text-foreground">
-                                CINEVA
-                            </span>
-                            <span className="text-[10px] font-medium tracking-widest text-muted-foreground uppercase">
-                                Cinema Explorer
-                            </span>
-                        </div>
+                        {/* Dark mode logo (white text) */}
+                        <Image
+                            src="/images/logo-light.png"
+                            alt="CINEVA Cinema Explorer"
+                            width={144}
+                            height={36}
+                            priority
+                            className="hidden dark:block h-8 sm:h-9 w-auto object-contain transition-opacity group-hover:opacity-90"
+                        />
+                        {/* Light mode logo (dark text) */}
+                        <Image
+                            src="/images/logo-dark.png"
+                            alt="CINEVA Cinema Explorer"
+                            width={144}
+                            height={36}
+                            priority
+                            className="block dark:hidden h-8 sm:h-9 w-auto object-contain transition-opacity group-hover:opacity-90"
+                        />
                     </Link>
 
                     {/* Desktop Navigation Links */}

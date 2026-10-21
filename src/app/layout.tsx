@@ -24,6 +24,14 @@ export const metadata: Metadata = {
   description:
     "Explore the latest popular movies, watch official HD trailers, and discover thousands of titles and celebrities with modern cinematic aesthetic.",
   keywords: ["popular movies", "movie trailers", "watch trailers", "tmdb", "cinema", "movie explorer", "imdb clone", "celebrities"],
+  icons: {
+    icon: [
+      { url: "/images/logo.png", sizes: "any" },
+      { url: "/images/logo.png", type: "image/png" },
+    ],
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
 };
 
 export default function RootLayout({

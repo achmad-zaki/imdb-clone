@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
-    RiFilmLine,
     RiHome5Line,
     RiMovie2Line,
     RiTvLine,
@@ -19,8 +19,14 @@ export default function NotFound() {
 
             <div className="mx-auto max-w-md">
                 {/* Icon Badge */}
-                <div className="mx-auto flex size-20 items-center justify-center rounded-3xl border border-border/80 bg-card/80 text-primary shadow-xl shadow-primary/5 backdrop-blur-sm">
-                    <RiFilmLine className="size-10" />
+                <div className="mx-auto flex size-20 items-center justify-center rounded-3xl border border-border/80 bg-card/80 p-3 shadow-xl shadow-primary/5 backdrop-blur-sm">
+                    <Image
+                        src="/images/logo.png"
+                        alt="CINEVA Logo"
+                        width={56}
+                        height={56}
+                        className="size-14 object-contain"
+                    />
                 </div>
 
                 {/* 404 & Heading */}

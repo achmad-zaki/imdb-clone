@@ -1,19 +1,35 @@
 import Link from "next/link";
-import { RiFilmFill } from "@remixicon/react";
+import Image from "next/image";
 
 export default function Footer() {
     return (
         <footer className="mt-auto border-t border-border/60 bg-card py-12 text-muted-foreground transition-colors duration-300">
             <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 px-4 text-center sm:flex-row sm:px-8 sm:text-left">
-                <div className="flex items-center gap-2.5">
-                    <div className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
-                        <RiFilmFill className="size-4" />
-                    </div>
-                    <span className="text-sm font-bold tracking-tight text-foreground">
-                        CINEVA
-                    </span>
-                    <span className="text-xs text-border">|</span>
-                    <span className="text-xs text-muted-foreground">
+                <div className="flex items-center gap-3">
+                    <Link
+                        href="/"
+                        className="inline-block transition-opacity hover:opacity-85"
+                        aria-label="CINEVA Home"
+                    >
+                        {/* Dark mode logo (white text) */}
+                        <Image
+                            src="/images/logo-light.png"
+                            alt="CINEVA"
+                            width={124}
+                            height={31}
+                            className="hidden dark:block h-7 w-auto object-contain"
+                        />
+                        {/* Light mode logo (dark text) */}
+                        <Image
+                            src="/images/logo-dark.png"
+                            alt="CINEVA"
+                            width={124}
+                            height={31}
+                            className="block dark:hidden h-7 w-auto object-contain"
+                        />
+                    </Link>
+                    <span className="text-xs text-border hidden sm:inline">|</span>
+                    <span className="text-xs text-muted-foreground hidden sm:inline">
                         Cinema Explorer Platform
                     </span>
                 </div>

@@ -3,26 +3,42 @@
 import MovieCard from "@/components/movie/movie-card";
 import TrailerModal from "@/components/movie/trailer-modal";
 import { formatDate } from "@/lib/date";
-import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
-import { Movie, MovieDetail } from "@/types/movie";
+import { getBackdropUrl, getPosterUrl, getProfileUrl } from "@/lib/tmdb-images";
+import { getPersonUrl } from "@/lib/slug";
+import { CastMember, Movie, MovieDetail } from "@/types/movie";
+import { Button } from "@/components/ui/button";
 import {
+    RiArrowLeftSLine,
+    RiArrowRightSLine,
     RiCalendarLine,
     RiFilmLine,
     RiPlayFill,
     RiStarFill,
-    RiTimeLine
+    RiTimeLine,
+    RiUser3Line,
 } from "@remixicon/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type MovieDetailViewProps = {
     movie: MovieDetail;
     recommendations: Movie[];
+    cast?: CastMember[];
 };
 
-export default function MovieDetailView({ movie, recommendations }: MovieDetailViewProps) {
+export default function MovieDetailView({ movie, recommendations, cast }: MovieDetailViewProps) {
     const [trailerMovie, setTrailerMovie] = useState<Movie | null>(null);
+    const castScrollRef = useRef<HTMLDivElement>(null);
+
+    const handleScrollCast = (direction: "left" | "right") => {
+        if (!castScrollRef.current) return;
+        const scrollAmount = 320;
+        castScrollRef.current.scrollBy({
+            left: direction === "left" ? -scrollAmount : scrollAmount,
+            behavior: "smooth",
+        });
+    };
 
     const year = movie.release_date ? movie.release_date.slice(0, 4) : "";
     const rating = movie.vote_average ? movie.vote_average.toFixed(1) : "—";
@@ -188,6 +204,74 @@ export default function MovieDetailView({ movie, recommendations }: MovieDetailV
                         </dl>
                     </div>
                 </div>
+
+                {/* Top Cast Section */}
+                {cast && cast.length > 0 && (
+                    <div className="mt-14 border-t border-border/60 pt-10">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <RiUser3Line className="size-5 text-primary" />
+                                <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                                    Top Cast
+                                </h2>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground font-medium hidden sm:inline mr-1">
+                                    {cast.length} Pemeran
+                                </span>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handleScrollCast("left")}
+                                    aria-label="Previous cast"
+                                    title="Pemeran sebelumnya"
+                                >
+                                    <RiArrowLeftSLine className="size-5" />
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={() => handleScrollCast("right")}
+                                    aria-label="Next cast"
+                                    title="Pemeran berikutnya"
+                                >
+                                    <RiArrowRightSLine className="size-5" />
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div
+                            ref={castScrollRef}
+                            className="mt-6 flex items-start gap-4 overflow-x-auto pb-4 no-scrollbar scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0"
+                        >
+                            {cast.slice(0, 20).map((actor) => (
+                                <Link
+                                    key={actor.id}
+                                    href={getPersonUrl(actor.id, actor.name)}
+                                    className="group flex w-24 sm:w-28 shrink-0 flex-col items-center text-center"
+                                >
+                                    <div className="relative size-20 sm:size-24 rounded-full overflow-hidden border-2 border-border/70 shadow-sm transition-colors duration-300 group-hover:border-primary bg-muted">
+                                        <Image
+                                            src={getProfileUrl(actor.profile_path, "w185")}
+                                            alt={actor.name}
+                                            fill
+                                            sizes="(max-width: 640px) 80px, 96px"
+                                            className="object-cover"
+                                        />
+                                    </div>
+                                    <h3 className="mt-2.5 w-full truncate text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                                        {actor.name}
+                                    </h3>
+                                    <p className="mt-0.5 w-full truncate text-[11px] text-muted-foreground">
+                                        {actor.character || "Cast"}
+                                    </p>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Recommendations */}
                 {recommendations.length > 0 && (

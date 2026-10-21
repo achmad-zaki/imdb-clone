@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
-import { getMovieDetails, getMovieRecommendations } from "@/lib/tmdb";
+import { getMovieCredits, getMovieDetails, getMovieRecommendations } from "@/lib/tmdb";
 import { parseEntityId, getMovieUrl } from "@/lib/slug";
 import MovieDetailView from "@/components/movie/movie-detail-view";
 import type { Metadata } from "next";
@@ -29,9 +29,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 async function MovieDetailContent({ idPromise }: { idPromise: Promise<{ id: string }> }) {
     const { id } = await idPromise;
     const numericId = parseEntityId(id);
-    const [movie, recommendations] = await Promise.all([
+    const [movie, recommendations, cast] = await Promise.all([
         getMovieDetails(numericId),
         getMovieRecommendations(numericId),
+        getMovieCredits(numericId),
     ]);
 
     if (!movie) {
@@ -45,7 +46,13 @@ async function MovieDetailContent({ idPromise }: { idPromise: Promise<{ id: stri
         redirect(canonicalUrl);
     }
 
-    return <MovieDetailView movie={movie} recommendations={recommendations} />;
+    return (
+        <MovieDetailView
+            movie={movie}
+            recommendations={recommendations}
+            cast={cast}
+        />
+    );
 }
 
 function MovieDetailSkeleton() {

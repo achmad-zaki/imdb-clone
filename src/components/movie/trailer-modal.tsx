@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Movie, Video } from "@/types/movie";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { CastMember, Movie, Video } from "@/types/movie";
 import { MediaCardItem } from "@/components/movie/movie-card";
 import { Button } from "@/components/ui/button";
+import { getProfileUrl } from "@/lib/tmdb-images";
+import { getPersonUrl } from "@/lib/slug";
 import {
     RiArrowLeftSLine,
     RiArrowRightSLine,
@@ -11,6 +15,7 @@ import {
     RiFilmLine,
     RiPlayFill,
     RiStarFill,
+    RiUser3Line,
 } from "@remixicon/react";
 
 type TrailerModalProps = {
@@ -22,29 +27,42 @@ type TrailerModalProps = {
 export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalProps) {
     const [videos, setVideos] = useState<Video[]>([]);
     const [activeVideo, setActiveVideo] = useState<Video | null>(null);
+    const [cast, setCast] = useState<CastMember[]>([]);
+    const [activeTab, setActiveTab] = useState<"overview" | "cast">("overview");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const castScrollRef = useRef<HTMLDivElement>(null);
+    const handleScrollCast = (direction: "left" | "right") => {
+        if (!castScrollRef.current) return;
+        const scrollAmount = 240;
+        castScrollRef.current.scrollBy({
+            left: direction === "left" ? -scrollAmount : scrollAmount,
+            behavior: "smooth",
+        });
+    };
 
     const currentIndex = videos.findIndex((v) => v.id === activeVideo?.id);
     const hasPrev = currentIndex > 0;
     const hasNext = currentIndex >= 0 && currentIndex < videos.length - 1;
 
-    const handlePrev = () => {
+    const handlePrev = useCallback(() => {
         if (currentIndex > 0) {
             setActiveVideo(videos[currentIndex - 1]);
         }
-    };
+    }, [currentIndex, videos]);
 
-    const handleNext = () => {
+    const handleNext = useCallback(() => {
         if (currentIndex >= 0 && currentIndex < videos.length - 1) {
             setActiveVideo(videos[currentIndex + 1]);
         }
-    };
+    }, [currentIndex, videos]);
 
     // Auto-scroll active pill into view when activeVideo changes
+    const activeVideoId = activeVideo?.id;
     useEffect(() => {
-        if (!activeVideo) return;
-        const activeEl = document.getElementById(`trailer-pill-${activeVideo.id}`);
+        if (!activeVideoId) return;
+        const activeEl = document.getElementById(`trailer-pill-${activeVideoId}`);
         if (activeEl) {
             activeEl.scrollIntoView({
                 behavior: "smooth",
@@ -52,7 +70,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                 inline: "center",
             });
         }
-    }, [activeVideo?.id]);
+    }, [activeVideoId]);
 
     // Fetch trailers when movie changes or modal opens
     useEffect(() => {
@@ -63,6 +81,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
         const fetchVideos = async () => {
             setIsLoading(true);
             setError(null);
+            setActiveTab("overview");
 
             try {
                 const typeParam = (movie as { media_type?: string })?.media_type
@@ -74,6 +93,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                 if (isCancelled) return;
                 const vids: Video[] = data.videos || [];
                 setVideos(vids);
+                setCast(data.cast || []);
                 if (vids.length > 0) {
                     const trailer =
                         vids.find((v) => v.type === "Trailer" && v.official) ||
@@ -136,7 +156,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
             document.body.style.overflow = "unset";
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [isOpen, onClose, currentIndex, videos]);
+    }, [isOpen, onClose, handlePrev, handleNext]);
 
     if (!isOpen || !movie) return null;
 
@@ -144,7 +164,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6"
+            className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-2 sm:p-4 md:p-6"
             role="dialog"
             aria-modal="true"
         >
@@ -156,9 +176,9 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
             />
 
             {/* Modal Container */}
-            <div className="relative z-10 w-full max-w-4xl overflow-hidden rounded-2xl border border-border/80 bg-card text-card-foreground shadow-2xl transition-all duration-300">
+            <div className="relative z-10 my-auto flex max-h-[calc(100dvh-1rem)] sm:max-h-[calc(100dvh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-border/80 bg-card text-card-foreground shadow-2xl transition-all duration-300">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
+                <div className="flex shrink-0 items-center justify-between border-b border-border/60 px-4 py-3 sm:px-5 sm:py-3.5">
                     <div className="flex items-center space-x-3 overflow-hidden">
                         <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                             <RiFilmLine className="size-4" />
@@ -196,40 +216,48 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                 </div>
 
                 {/* Video Player Box */}
-                <div className="relative aspect-video w-full bg-black">
-                    {isLoading ? (
-                        <div className="flex h-full w-full flex-col items-center justify-center space-y-3 text-muted-foreground">
-                            <div className="size-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
-                            <p className="text-sm font-light tracking-wide text-muted-foreground">Loading trailer...</p>
-                        </div>
-                    ) : error ? (
-                        <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
-                            <p className="text-sm text-destructive">{error}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">Please try again later</p>
-                        </div>
-                    ) : activeVideo ? (
-                        <iframe
-                            key={activeVideo.key}
-                            src={`https://www.youtube-nocookie.com/embed/${activeVideo.key}?autoplay=1&rel=0&modestbranding=1`}
-                            title={activeVideo.name}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                            className="h-full w-full border-0"
-                        />
-                    ) : (
-                        <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center text-muted-foreground">
-                            <RiFilmLine className="mb-2 size-10 opacity-60" />
-                            <p className="text-sm font-semibold text-foreground">Trailer Not Available</p>
-                            <p className="mt-1 max-w-sm text-xs text-muted-foreground">
-                                Sorry, official trailer for &ldquo;{movie.title}&rdquo; is currently not available on TMDB.
-                            </p>
-                        </div>
-                    )}
+                <div className="relative flex w-full shrink min-h-0 items-center justify-center bg-black">
+                    <div
+                        className="relative aspect-video w-full"
+                        style={{
+                            maxHeight: "min(500px, 52vh)",
+                            width: "min(100%, calc(min(500px, 52vh) * 16 / 9))",
+                        }}
+                    >
+                        {isLoading ? (
+                            <div className="flex h-full w-full flex-col items-center justify-center space-y-3 text-muted-foreground">
+                                <div className="size-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+                                <p className="text-sm font-light tracking-wide text-muted-foreground">Loading trailer...</p>
+                            </div>
+                        ) : error ? (
+                            <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
+                                <p className="text-sm text-destructive">{error}</p>
+                                <p className="mt-1 text-xs text-muted-foreground">Please try again later</p>
+                            </div>
+                        ) : activeVideo ? (
+                            <iframe
+                                key={activeVideo.key}
+                                src={`https://www.youtube-nocookie.com/embed/${activeVideo.key}?autoplay=1&rel=0&modestbranding=1`}
+                                title={activeVideo.name}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowFullScreen
+                                className="h-full w-full border-0"
+                            />
+                        ) : (
+                            <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center text-muted-foreground">
+                                <RiFilmLine className="mb-2 size-10 opacity-60" />
+                                <p className="text-sm font-semibold text-foreground">Trailer Not Available</p>
+                                <p className="mt-1 max-w-sm text-xs text-muted-foreground">
+                                    Sorry, official trailer for &ldquo;{movie.title}&rdquo; is currently not available on TMDB.
+                                </p>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Multiple Video Selection Bar */}
                 {videos.length > 1 && (
-                    <div className="flex items-center gap-2 border-t border-border/60 bg-muted/20 px-3 py-2.5 sm:px-5">
+                    <div className="flex shrink-0 items-center gap-2 border-t border-border/60 bg-muted/20 px-3 py-2 sm:px-5">
                         {/* Prev Button */}
                         <Button
                             type="button"
@@ -288,12 +316,104 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                     </div>
                 )}
 
-                {/* Synopsis / Info Footer */}
-                {movie.overview && (
-                    <div className="border-t border-border/60 bg-muted/30 px-5 py-3">
-                        <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-                            {movie.overview}
-                        </p>
+                {/* Synopsis / Cast Footer */}
+                {(movie.overview || cast.length > 0) && (
+                    <div className="shrink-0 border-t border-border/60 bg-muted/30 px-4 py-2.5 sm:px-5">
+                        <div className="flex items-center gap-4 mb-1.5">
+                            {movie.overview && (
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab("overview")}
+                                    className={`text-xs font-semibold pb-0.5 border-b-2 transition-colors ${
+                                        activeTab === "overview"
+                                            ? "border-primary text-foreground"
+                                            : "border-transparent text-muted-foreground hover:text-foreground"
+                                    }`}
+                                >
+                                    Sinopsis
+                                </button>
+                            )}
+                            {cast.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveTab("cast")}
+                                    className={`inline-flex items-center gap-1.5 text-xs font-semibold pb-0.5 border-b-2 transition-colors ${
+                                        activeTab === "cast"
+                                            ? "border-primary text-foreground"
+                                            : "border-transparent text-muted-foreground hover:text-foreground"
+                                    }`}
+                                >
+                                    <RiUser3Line className="size-3.5" />
+                                    <span>Pemeran ({cast.length})</span>
+                                </button>
+                            )}
+                        </div>
+
+                        {activeTab === "overview" && movie.overview ? (
+                            <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                                {movie.overview}
+                            </p>
+                        ) : (
+                            <div className="flex items-center gap-1.5">
+                                {cast.length > 3 && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="size-7 shrink-0"
+                                        onClick={() => handleScrollCast("left")}
+                                        aria-label="Previous cast"
+                                        title="Pemeran sebelumnya"
+                                    >
+                                        <RiArrowLeftSLine className="size-4" />
+                                    </Button>
+                                )}
+                                <div
+                                    ref={castScrollRef}
+                                    className="flex flex-1 items-center gap-2 overflow-x-auto py-0.5 no-scrollbar scroll-smooth"
+                                >
+                                    {cast.map((actor) => (
+                                        <Link
+                                            key={actor.id}
+                                            href={getPersonUrl(actor.id, actor.name)}
+                                            className="group inline-flex items-center gap-2 shrink-0 rounded-lg border border-border/50 bg-background/60 px-2 py-1 transition-colors hover:border-primary/50 hover:bg-background"
+                                            title={`${actor.name} (${actor.character})`}
+                                        >
+                                            <div className="relative size-6 shrink-0 rounded-full overflow-hidden border border-border bg-muted">
+                                                <Image
+                                                    src={getProfileUrl(actor.profile_path, "w185")}
+                                                    alt={actor.name}
+                                                    fill
+                                                    sizes="24px"
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                            <div className="text-left text-xs min-w-0">
+                                                <p className="font-semibold text-foreground truncate max-w-[110px] group-hover:text-primary transition-colors">
+                                                    {actor.name}
+                                                </p>
+                                                <p className="text-[10px] text-muted-foreground truncate max-w-[110px]">
+                                                    {actor.character || "Cast"}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                                {cast.length > 3 && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="size-7 shrink-0"
+                                        onClick={() => handleScrollCast("right")}
+                                        aria-label="Next cast"
+                                        title="Pemeran berikutnya"
+                                    >
+                                        <RiArrowRightSLine className="size-4" />
+                                    </Button>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

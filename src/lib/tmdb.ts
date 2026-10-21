@@ -1,4 +1,4 @@
-import { Movie, MovieDetail, MovieResponse, Video, VideoResponse } from "@/types/movie";
+import { CastMember, Movie, MovieDetail, MovieResponse, Video, VideoResponse } from "@/types/movie";
 import { PersonDetail, PersonResponse } from "@/types/person";
 import { TVDetail, TVResponse, TVShow } from "@/types/tv";
 
@@ -419,6 +419,47 @@ export async function getTVVideos(tvId: number | string): Promise<Video[]> {
         });
     } catch {
         return [];
+    }
+}
+
+export async function getMovieCredits(movieId: number | string): Promise<CastMember[]> {
+    try {
+        const response = await tmdbFetch<{ id: number; cast: CastMember[] }>(
+            `/movie/${movieId}/credits`,
+            { language: "en-US" },
+        );
+        return response.cast || [];
+    } catch {
+        try {
+            // Fallback for TV show
+            const tv = await tmdbFetch<{ id: number; cast: CastMember[] }>(
+                `/tv/${movieId}/credits`,
+                { language: "en-US" },
+            );
+            return tv.cast || [];
+        } catch {
+            return [];
+        }
+    }
+}
+
+export async function getTVCredits(tvId: number | string): Promise<CastMember[]> {
+    try {
+        const response = await tmdbFetch<{ id: number; cast: CastMember[] }>(
+            `/tv/${tvId}/credits`,
+            { language: "en-US" },
+        );
+        return response.cast || [];
+    } catch {
+        try {
+            const movie = await tmdbFetch<{ id: number; cast: CastMember[] }>(
+                `/movie/${tvId}/credits`,
+                { language: "en-US" },
+            );
+            return movie.cast || [];
+        } catch {
+            return [];
+        }
     }
 }
 

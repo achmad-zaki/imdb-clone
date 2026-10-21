@@ -1,5 +1,5 @@
-import { getMovieVideos, getTVVideos } from "@/lib/tmdb";
-import { Video } from "@/types/movie";
+import { getMovieCredits, getMovieVideos, getTVCredits, getTVVideos } from "@/lib/tmdb";
+import { CastMember, Video } from "@/types/movie";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -13,15 +13,33 @@ export async function GET(request: NextRequest) {
 
     try {
         let videos: Video[] = [];
+        let cast: CastMember[] = [];
+
         if (mediaType === "tv") {
-            videos = await getTVVideos(movieId);
+            const [vids, credits] = await Promise.all([
+                getTVVideos(movieId),
+                getTVCredits(movieId),
+            ]);
+            videos = vids;
+            cast = credits;
             if (videos.length === 0) {
                 videos = await getMovieVideos(movieId);
             }
+            if (cast.length === 0) {
+                cast = await getMovieCredits(movieId);
+            }
         } else {
-            videos = await getMovieVideos(movieId);
+            const [vids, credits] = await Promise.all([
+                getMovieVideos(movieId),
+                getMovieCredits(movieId),
+            ]);
+            videos = vids;
+            cast = credits;
             if (videos.length === 0) {
                 videos = await getTVVideos(movieId);
+            }
+            if (cast.length === 0) {
+                cast = await getTVCredits(movieId);
             }
         }
 
@@ -34,6 +52,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
             videos,
             trailer,
+            cast: cast.slice(0, 15),
         });
     } catch (err) {
         return NextResponse.json(

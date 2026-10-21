@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
-import { getTVDetails, getTVRecommendations } from "@/lib/tmdb";
+import { getTVCredits, getTVDetails, getTVRecommendations } from "@/lib/tmdb";
 import { parseEntityId, getTvUrl } from "@/lib/slug";
 import TVDetailView from "@/components/tv/tv-detail-view";
 import type { Metadata } from "next";
@@ -29,9 +29,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 async function TVDetailContent({ idPromise }: { idPromise: Promise<{ id: string }> }) {
     const { id } = await idPromise;
     const numericId = parseEntityId(id);
-    const [tv, recommendations] = await Promise.all([
+    const [tv, recommendations, cast] = await Promise.all([
         getTVDetails(numericId),
         getTVRecommendations(numericId),
+        getTVCredits(numericId),
     ]);
 
     if (!tv) {
@@ -45,7 +46,13 @@ async function TVDetailContent({ idPromise }: { idPromise: Promise<{ id: string 
         redirect(canonicalUrl);
     }
 
-    return <TVDetailView tv={tv} recommendations={recommendations} />;
+    return (
+        <TVDetailView
+            tv={tv}
+            recommendations={recommendations}
+            cast={cast}
+        />
+    );
 }
 
 function TVDetailSkeleton() {

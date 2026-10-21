@@ -32,6 +32,22 @@ type TVDetailViewProps = {
 
 export default function TVDetailView({ tv, recommendations, cast }: TVDetailViewProps) {
     const [trailerMovie, setTrailerMovie] = useState<Movie | null>(null);
+    const [backdropError, setBackdropError] = useState(false);
+    const [prevBackdropPath, setPrevBackdropPath] = useState(tv.backdrop_path);
+    if (tv.backdrop_path !== prevBackdropPath) {
+        setPrevBackdropPath(tv.backdrop_path);
+        setBackdropError(false);
+    }
+
+    const [posterError, setPosterError] = useState(false);
+    const [prevPosterPath, setPrevPosterPath] = useState(tv.poster_path);
+    if (tv.poster_path !== prevPosterPath) {
+        setPrevPosterPath(tv.poster_path);
+        setPosterError(false);
+    }
+
+    const backdropSrc = backdropError ? "/images/not-found.png" : getBackdropUrl(tv.backdrop_path);
+    const posterSrc = posterError ? "/images/not-found.png" : getPosterUrl(tv.poster_path);
     const castScrollRef = useRef<HTMLDivElement>(null);
 
     const handleScrollCast = (direction: "left" | "right") => {
@@ -85,12 +101,13 @@ export default function TVDetailView({ tv, recommendations, cast }: TVDetailView
             {/* Hero Backdrop Section */}
             <div className="relative min-h-[460px] w-full overflow-hidden bg-muted sm:min-h-[540px]">
                 <Image
-                    src={getBackdropUrl(tv.backdrop_path)}
+                    src={backdropSrc}
                     alt={tv.name}
                     fill
                     priority
                     sizes="100vw"
                     className="object-cover object-top opacity-35 dark:opacity-50"
+                    onError={() => setBackdropError(true)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
@@ -116,12 +133,13 @@ export default function TVDetailView({ tv, recommendations, cast }: TVDetailView
                         {/* Poster */}
                         <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl border border-border/80 bg-muted shadow-2xl sm:w-60">
                             <Image
-                                src={getPosterUrl(tv.poster_path)}
+                                src={posterSrc}
                                 alt={`Poster for ${tv.name}`}
                                 fill
                                 priority
                                 sizes="(max-width: 640px) 192px, 240px"
                                 className="object-cover"
+                                onError={() => setPosterError(true)}
                             />
                         </div>
 

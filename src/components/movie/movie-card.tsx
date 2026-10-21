@@ -1,10 +1,11 @@
 "use client";
 
-import { getPosterUrl } from "@/lib/tmdb-images";
+import { NOT_FOUND_IMAGE, getPosterUrl } from "@/lib/tmdb-images";
 import type { Movie } from "@/types/movie";
 import { RiPlayFill, RiStarFill } from "@remixicon/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { getMovieUrl, getTvUrl } from "@/lib/slug";
 
@@ -19,6 +20,16 @@ type MovieCardProps = {
 };
 
 export default function MovieCard({ movie, onPlayTrailer, priority = false }: MovieCardProps) {
+    const [hasError, setHasError] = useState(false);
+    const [prevPosterPath, setPrevPosterPath] = useState(movie.poster_path);
+
+    if (movie.poster_path !== prevPosterPath) {
+        setPrevPosterPath(movie.poster_path);
+        setHasError(false);
+    }
+
+    const imgSrc = hasError ? NOT_FOUND_IMAGE : getPosterUrl(movie.poster_path);
+
     const year = movie.release_date
         ? movie.release_date.slice(0, 4)
         : "";
@@ -39,13 +50,14 @@ export default function MovieCard({ movie, onPlayTrailer, priority = false }: Mo
                     aria-label={`View details for ${movie.title}`}
                 />
                 <Image
-                    src={getPosterUrl(movie.poster_path)}
+                    src={imgSrc}
                     alt={`Poster ${movie.title}`}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
                     className="object-cover transition-transform duration-500 ease-out group-hover:scale-105 pointer-events-none"
                     priority={priority}
                     loading={priority ? "eager" : "lazy"}
+                    onError={() => setHasError(true)}
                 />
 
                 {/* Rating Badge */}

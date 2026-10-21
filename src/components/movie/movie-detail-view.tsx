@@ -29,6 +29,22 @@ type MovieDetailViewProps = {
 
 export default function MovieDetailView({ movie, recommendations, cast }: MovieDetailViewProps) {
     const [trailerMovie, setTrailerMovie] = useState<Movie | null>(null);
+    const [backdropError, setBackdropError] = useState(false);
+    const [prevBackdropPath, setPrevBackdropPath] = useState(movie.backdrop_path);
+    if (movie.backdrop_path !== prevBackdropPath) {
+        setPrevBackdropPath(movie.backdrop_path);
+        setBackdropError(false);
+    }
+
+    const [posterError, setPosterError] = useState(false);
+    const [prevPosterPath, setPrevPosterPath] = useState(movie.poster_path);
+    if (movie.poster_path !== prevPosterPath) {
+        setPrevPosterPath(movie.poster_path);
+        setPosterError(false);
+    }
+
+    const backdropSrc = backdropError ? "/images/not-found.png" : getBackdropUrl(movie.backdrop_path);
+    const posterSrc = posterError ? "/images/not-found.png" : getPosterUrl(movie.poster_path);
     const castScrollRef = useRef<HTMLDivElement>(null);
 
     const handleScrollCast = (direction: "left" | "right") => {
@@ -55,12 +71,13 @@ export default function MovieDetailView({ movie, recommendations, cast }: MovieD
             {/* Cinematic Backdrop Hero */}
             <div className="relative min-h-[460px] w-full overflow-hidden sm:min-h-[520px]">
                 <Image
-                    src={getBackdropUrl(movie.backdrop_path)}
+                    src={backdropSrc}
                     alt={movie.title}
                     fill
                     priority
                     sizes="100vw"
                     className="object-cover object-top opacity-35 dark:opacity-50"
+                    onError={() => setBackdropError(true)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
@@ -86,12 +103,13 @@ export default function MovieDetailView({ movie, recommendations, cast }: MovieD
                         {/* Poster */}
                         <div className="relative aspect-[2/3] w-48 shrink-0 overflow-hidden rounded-2xl border border-border/80 bg-muted shadow-2xl sm:w-60">
                             <Image
-                                src={getPosterUrl(movie.poster_path)}
+                                src={posterSrc}
                                 alt={`Poster for ${movie.title}`}
                                 fill
                                 sizes="(max-width: 640px) 192px, 240px"
                                 className="object-cover"
                                 priority
+                                onError={() => setPosterError(true)}
                             />
                         </div>
 

@@ -147,29 +147,20 @@ function ItemThumbnail({
 }) {
     const [hasError, setHasError] = useState(false);
 
-    if (!image || hasError) {
+    if (type === "keyword") {
         return (
             <div
                 className={cn(
-                    "flex shrink-0 items-center justify-center bg-muted/80 text-muted-foreground",
-                    type === "person" ? "rounded-full" : "rounded-md",
+                    "flex shrink-0 items-center justify-center bg-muted/80 text-muted-foreground rounded-md",
                     className,
                 )}
             >
-                {type === "person" ? (
-                    <RiUserStarLine className="size-4 opacity-60" />
-                ) : type === "company" ? (
-                    <RiBuildingLine className="size-4 opacity-60" />
-                ) : type === "keyword" ? (
-                    <RiHashtag className="size-4 opacity-60" />
-                ) : type === "tv" ? (
-                    <RiTvLine className="size-4 opacity-60" />
-                ) : (
-                    <RiFilmLine className="size-4 opacity-60" />
-                )}
+                <RiHashtag className="size-4 opacity-60" />
             </div>
         );
     }
+
+    const effectiveSrc = !image || hasError ? "/images/not-found.png" : image;
 
     return (
         <div
@@ -180,7 +171,7 @@ function ItemThumbnail({
             )}
         >
             <Image
-                src={image}
+                src={effectiveSrc}
                 alt={title}
                 fill
                 sizes="(max-width: 768px) 80px, 60px"

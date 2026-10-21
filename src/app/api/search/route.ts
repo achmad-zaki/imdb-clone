@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
                         rating: item.vote_average ? Number(item.vote_average.toFixed(1)) : null,
                         image: item.poster_path
                             ? `https://image.tmdb.org/t/p/w185${item.poster_path}`
-                            : null,
+                            : "/images/not-found.png",
                         overview: item.overview || "",
                         badge: isMovie ? "Movie" : "TV Show",
                         poster_path: item.poster_path || null,
@@ -140,7 +140,7 @@ export async function GET(request: NextRequest) {
                     rating: item.vote_average ? Number(item.vote_average.toFixed(1)) : null,
                     image: item.poster_path
                         ? `https://image.tmdb.org/t/p/w185${item.poster_path}`
-                        : null,
+                        : "/images/not-found.png",
                     overview: item.overview || "",
                     badge: "TV Show",
                     poster_path: item.poster_path || null,
@@ -181,7 +181,7 @@ export async function GET(request: NextRequest) {
                         subtitle: dept,
                         image: item.profile_path
                             ? `https://image.tmdb.org/t/p/w185${item.profile_path}`
-                            : null,
+                            : "/images/not-found.png",
                         extra: knownWorks ? `Known for: ${knownWorks}` : null,
                         badge: "Celebrity",
                     };
@@ -205,7 +205,7 @@ export async function GET(request: NextRequest) {
                         : "Production Studio",
                     image: item.logo_path
                         ? `https://image.tmdb.org/t/p/w185${item.logo_path}`
-                        : null,
+                        : "/images/not-found.png",
                     badge: "Company",
                 }));
                 break;
@@ -257,7 +257,7 @@ export async function GET(request: NextRequest) {
                             subtitle: dept,
                             image: item.profile_path
                                 ? `https://image.tmdb.org/t/p/w185${item.profile_path}`
-                                : null,
+                                : "/images/not-found.png",
                             extra: knownWorks ? `Known for: ${knownWorks}` : null,
                             badge: "Celebrity",
                         };
@@ -279,7 +279,7 @@ export async function GET(request: NextRequest) {
                             : null,
                         image: item.poster_path
                             ? `https://image.tmdb.org/t/p/w185${item.poster_path}`
-                            : null,
+                            : "/images/not-found.png",
                         overview: item.overview || "",
                         badge: isMovie ? "Movie" : "TV Show",
                         poster_path: item.poster_path || null,

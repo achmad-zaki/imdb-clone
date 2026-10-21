@@ -1,14 +1,13 @@
 "use client";
 
 import { GENRE_MAP } from "@/lib/tmdb";
-import { getBackdropUrl, getPosterUrl } from "@/lib/tmdb-images";
+import { getBackdropUrl } from "@/lib/tmdb-images";
+import { getMovieUrl } from "@/lib/slug";
 import { Movie } from "@/types/movie";
 import { RiFireFill, RiInformationLine, RiPlayFill, RiStarFill } from "@remixicon/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { FaStar } from "react-icons/fa";
-import { getMovieUrl } from "@/lib/slug";
+import { useEffect, useState } from "react";
 
 type HeroSpotlightProps = {
     movies: Movie[];
@@ -17,10 +16,23 @@ type HeroSpotlightProps = {
 
 export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightProps) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const [backdropErrors, setBackdropErrors] = useState<Record<number, boolean>>({});
+
+    const featured = movies ? movies.slice(0, 5) : [];
+    const featuredLength = featured.length;
+
+    useEffect(() => {
+        if (featuredLength <= 1) return;
+
+        const interval = setInterval(() => {
+            setActiveIndex((prev) => (prev + 1) % featuredLength);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [featuredLength, activeIndex]);
 
     if (!movies || movies.length === 0) return null;
 
-    const featured = movies.slice(0, 5);
     const activeMovie = featured[activeIndex] || featured[0];
 
     const year = activeMovie.release_date ? activeMovie.release_date.slice(0, 4) : "";
@@ -31,28 +43,46 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
         .slice(0, 3);
 
     return (
-        <section className="relative min-h-[500px] w-full max-w-full min-w-0 overflow-hidden bg-background sm:min-h-[580px] lg:min-h-[640px] transition-colors duration-300">
-            {/* Backdrop Image with Multi-directional Gradient Masks */}
-            <div className="absolute inset-0 z-0">
-                <Image
-                    key={activeMovie.id}
-                    src={getBackdropUrl(activeMovie.backdrop_path)}
-                    alt={`Latar belakang ${activeMovie.title}`}
-                    fill
-                    priority
-                    sizes="100vw"
-                    className="object-cover object-center transition-opacity duration-700 ease-in-out opacity-40 dark:opacity-60"
-                />
+        <section
+            className="relative min-h-[500px] w-full max-w-full min-w-0 overflow-hidden bg-background sm:min-h-[580px] lg:min-h-[640px] transition-colors duration-300"
+        >
+            {/* Backdrop Image with Slow Scale (Ken Burns) and Multi-directional Gradient Masks */}
+            <div className="absolute inset-0 z-0 overflow-hidden">
+                <div key={activeMovie.id} className="absolute inset-0 animate-hero-fade">
+                    <Image
+                        src={backdropErrors[activeMovie.id] ? "/images/not-found.png" : getBackdropUrl(activeMovie.backdrop_path)}
+                        alt={`Latar belakang ${activeMovie.title}`}
+                        fill
+                        priority
+                        sizes="100vw"
+                        className="object-cover object-center opacity-40 dark:opacity-60 animate-hero-kenburns"
+                        onError={() => setBackdropErrors((prev) => ({ ...prev, [activeMovie.id]: true }))}
+                    />
+                </div>
+
+                {/* Preload other slides' backdrop images for instant switching */}
+                <div className="hidden" aria-hidden="true">
+                    {featured.map((m) => (
+                        <Image
+                            key={m.id}
+                            src={getBackdropUrl(m.backdrop_path)}
+                            alt=""
+                            width={1}
+                            height={1}
+                            priority
+                        />
+                    ))}
+                </div>
 
                 {/* Theme-Adaptive Vignette Gradients */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-transparent" />
-                <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
-                <div className="absolute inset-0 bg-background/10 backdrop-blur-[1px]" />
+                <div className="absolute inset-0 z-1 pointer-events-none bg-gradient-to-t from-background via-background/75 to-transparent" />
+                <div className="absolute inset-0 z-1 pointer-events-none bg-gradient-to-r from-background/95 via-background/70 to-transparent sm:w-3/4" />
+                <div className="absolute inset-0 z-1 pointer-events-none bg-background/10 backdrop-blur-[1px]" />
             </div>
 
             {/* Content Container */}
-            <div className="relative z-10 mx-auto flex h-full min-h-[500px] w-full max-w-6xl min-w-0 flex-col justify-end px-4 pb-12 pt-28 sm:min-h-[580px] sm:px-8 sm:pb-16 lg:min-h-[640px]">
-                <div className="max-w-2xl">
+            <div className="relative z-10 mx-auto flex h-full min-h-[500px] w-full max-w-6xl min-w-0 flex-col justify-end px-4 pb-10 pt-28 sm:min-h-[580px] sm:px-8 sm:pb-14 lg:min-h-[640px]">
+                <div key={activeMovie.id} className="max-w-2xl animate-hero-content">
                     {/* Badge */}
                     <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary backdrop-blur-md shadow-xs">
                         <RiFireFill className="size-3.5 fill-current" />
@@ -121,44 +151,32 @@ export default function HeroSpotlight({ movies, onPlayTrailer }: HeroSpotlightPr
                     </div>
                 </div>
 
-                {/* Thumbnail Switcher for Featured Movies */}
-                <div className="mt-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4 border-t border-border/60 pt-4 sm:mt-12 w-full min-w-0">
-                    <span className="text-xs font-medium text-muted-foreground shrink-0">Featured Spotlight:</span>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar min-w-0 w-full flex-1 -mx-4 px-4 sm:mx-0 sm:px-0">
-                        {featured.map((movie, idx) => {
-                            const isSelected = idx === activeIndex;
-                            return (
-                                <button
-                                    key={movie.id}
-                                    onClick={() => setActiveIndex(idx)}
-                                    className={`group relative flex shrink-0 items-center gap-2 rounded-xl border p-1 text-left transition-all duration-200 ${isSelected
-                                            ? "border-primary bg-card shadow-md ring-1 ring-primary/40"
-                                            : "border-border/60 bg-card/60 hover:border-border hover:bg-card"
-                                        }`}
-                                    title={movie.title}
-                                >
-                                    <div className="relative h-10 w-7 overflow-hidden rounded-lg bg-muted">
-                                        <Image
-                                            src={getPosterUrl(movie.poster_path, "w92")}
-                                            alt={movie.title}
-                                            fill
-                                            sizes="28px"
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                    <div className="hidden pr-2 sm:block">
-                                        <p className="max-w-[100px] truncate text-xs font-semibold text-foreground">
-                                            {movie.title}
-                                        </p>
-                                        <p className="flex items-center gap-1 text-[10px] text-muted-foreground font-medium">
-                                            <FaStar className="size-2.5 text-amber-500 fill-amber-500 shrink-0" />
-                                            <span>{movie.vote_average.toFixed(1)}</span>
-                                        </p>
-                                    </div>
-                                </button>
-                            );
-                        })}
-                    </div>
+                {/* Centered Pagination Bars */}
+                <div
+                    className="mt-8 flex w-full items-center justify-center gap-2.5 sm:mt-10"
+                    role="tablist"
+                    aria-label="Hero Spotlight Pagination"
+                >
+                    {featured.map((movie, idx) => {
+                        const isSelected = idx === activeIndex;
+                        return (
+                            <button
+                                key={movie.id}
+                                type="button"
+                                role="tab"
+                                aria-selected={isSelected}
+                                aria-label={`Pilih film: ${movie.title}`}
+                                onClick={() => setActiveIndex(idx)}
+                                className={`h-1.5 rounded-full transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                                    isSelected
+                                        ? "w-10 sm:w-12 bg-primary shadow-xs"
+                                        : "w-3.5 sm:w-4 bg-foreground/20 dark:bg-white/20 hover:bg-foreground/40 dark:hover:bg-white/40 hover:w-5 sm:hover:w-6"
+                                }`}
+                            >
+                                <span className="sr-only">{movie.title}</span>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
         </section>

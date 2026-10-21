@@ -3,7 +3,15 @@
 import { useEffect, useState } from "react";
 import { Movie, Video } from "@/types/movie";
 import { MediaCardItem } from "@/components/movie/movie-card";
-import { RiCloseLine, RiFilmLine, RiPlayFill, RiStarFill } from "@remixicon/react";
+import { Button } from "@/components/ui/button";
+import {
+    RiArrowLeftSLine,
+    RiArrowRightSLine,
+    RiCloseLine,
+    RiFilmLine,
+    RiPlayFill,
+    RiStarFill,
+} from "@remixicon/react";
 
 type TrailerModalProps = {
     movie: MediaCardItem | Movie | null;
@@ -16,6 +24,35 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
     const [activeVideo, setActiveVideo] = useState<Video | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const currentIndex = videos.findIndex((v) => v.id === activeVideo?.id);
+    const hasPrev = currentIndex > 0;
+    const hasNext = currentIndex >= 0 && currentIndex < videos.length - 1;
+
+    const handlePrev = () => {
+        if (currentIndex > 0) {
+            setActiveVideo(videos[currentIndex - 1]);
+        }
+    };
+
+    const handleNext = () => {
+        if (currentIndex >= 0 && currentIndex < videos.length - 1) {
+            setActiveVideo(videos[currentIndex + 1]);
+        }
+    };
+
+    // Auto-scroll active pill into view when activeVideo changes
+    useEffect(() => {
+        if (!activeVideo) return;
+        const activeEl = document.getElementById(`trailer-pill-${activeVideo.id}`);
+        if (activeEl) {
+            activeEl.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center",
+            });
+        }
+    }, [activeVideo?.id]);
 
     // Fetch trailers when movie changes or modal opens
     useEffect(() => {
@@ -66,11 +103,25 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
         };
     }, [isOpen, movie]);
 
-    // Handle Escape key to close modal
+    // Handle Escape key and Arrow navigation
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
                 onClose();
+            } else if (e.key === "ArrowLeft") {
+                if (
+                    document.activeElement?.tagName !== "INPUT" &&
+                    document.activeElement?.tagName !== "TEXTAREA"
+                ) {
+                    handlePrev();
+                }
+            } else if (e.key === "ArrowRight") {
+                if (
+                    document.activeElement?.tagName !== "INPUT" &&
+                    document.activeElement?.tagName !== "TEXTAREA"
+                ) {
+                    handleNext();
+                }
             }
         };
 
@@ -85,7 +136,7 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
             document.body.style.overflow = "unset";
             window.removeEventListener("keydown", handleKeyDown);
         };
-    }, [isOpen, onClose]);
+    }, [isOpen, onClose, currentIndex, videos]);
 
     if (!isOpen || !movie) return null;
 
@@ -133,13 +184,15 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                         </div>
                     </div>
 
-                    <button
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={onClose}
-                        className="rounded-full p-2 text-muted-foreground transition hover:bg-muted hover:text-foreground"
                         aria-label="Close trailer modal"
                     >
                         <RiCloseLine className="size-5" />
-                    </button>
+                    </Button>
                 </div>
 
                 {/* Video Player Box */}
@@ -174,27 +227,64 @@ export default function TrailerModal({ movie, isOpen, onClose }: TrailerModalPro
                     )}
                 </div>
 
-                {/* Multiple Video Selection Pills */}
+                {/* Multiple Video Selection Bar */}
                 {videos.length > 1 && (
-                    <div className="flex items-center gap-2 overflow-x-auto border-t border-border/60 bg-muted/20 px-5 py-3 no-scrollbar">
-                        <span className="shrink-0 text-xs font-medium text-muted-foreground">Videos:</span>
-                        {videos.map((vid) => {
-                            const isCurrent = activeVideo?.id === vid.id;
-                            return (
-                                <button
-                                    key={vid.id}
-                                    onClick={() => setActiveVideo(vid)}
-                                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs transition-colors ${
-                                        isCurrent
-                                            ? "bg-primary font-semibold text-primary-foreground shadow-xs"
-                                            : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                                    }`}
-                                >
-                                    <RiPlayFill className="size-3" />
-                                    <span className="max-w-[150px] truncate">{vid.type}: {vid.name}</span>
-                                </button>
-                            );
-                        })}
+                    <div className="flex items-center gap-2 border-t border-border/60 bg-muted/20 px-3 py-2.5 sm:px-5">
+                        {/* Prev Button */}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={handlePrev}
+                            disabled={!hasPrev}
+                            title="Video sebelumnya"
+                            aria-label="Previous video"
+                        >
+                            <RiArrowLeftSLine className="size-5" />
+                        </Button>
+
+                        {/* Video Pills List */}
+                        <div className="flex flex-1 items-center gap-1.5 overflow-x-auto py-0.5 no-scrollbar scroll-smooth">
+                            {videos.map((vid) => {
+                                const isCurrent = activeVideo?.id === vid.id;
+                                return (
+                                    <button
+                                        id={`trailer-pill-${vid.id}`}
+                                        key={vid.id}
+                                        onClick={() => setActiveVideo(vid)}
+                                        className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all ${
+                                            isCurrent
+                                                ? "bg-primary font-semibold text-primary-foreground shadow-xs ring-2 ring-primary/30"
+                                                : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"
+                                        }`}
+                                        aria-current={isCurrent ? "true" : undefined}
+                                    >
+                                        <RiPlayFill className="size-3 shrink-0" />
+                                        <span className="max-w-[130px] truncate sm:max-w-[180px] md:max-w-[220px]">
+                                            {vid.type}: {vid.name}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Next Button */}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={handleNext}
+                            disabled={!hasNext}
+                            title="Video berikutnya"
+                            aria-label="Next video"
+                        >
+                            <RiArrowRightSLine className="size-5" />
+                        </Button>
+
+                        {/* Counter */}
+                        <div className="hidden shrink-0 text-xs font-medium text-muted-foreground tabular-nums sm:block pl-1">
+                            {currentIndex >= 0 ? currentIndex + 1 : 1}/{videos.length}
+                        </div>
                     </div>
                 )}
 
